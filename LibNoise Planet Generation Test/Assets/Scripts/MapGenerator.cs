@@ -7,6 +7,8 @@ using LibNoise.Unity;
 
 public class MapGenerator : MonoBehaviour {
 
+    public enum MapType {NoiseMap, HeightMap};
+    public MapType mapType;
     public int mapWidth;
     public int mapHeight;
     public string seed;
@@ -17,6 +19,7 @@ public class MapGenerator : MonoBehaviour {
     private Noise2D noiseMap = null;
     public Texture2D[] textures = new Texture2D[3];
     public NoiseFunctions[] noiseFunctions;
+    public TerrainType[] regions;
     private ModuleBase baseModule = null;
 
 
@@ -46,9 +49,33 @@ public class MapGenerator : MonoBehaviour {
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
         //noiseMap.GenerateSpherical(-1, 1, -1, 1);  //Needs research
         noiseMap.GeneratePlanar(-1, 1, -1, 1, true);  //the 5 argument version is good for sphere's, may use falloff map for poles and generate seperate meshes for icecaps, not sure
-        
-        textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
-        textures[0].Apply();
+
+        if (mapType == MapType.NoiseMap)
+        {
+            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
+            textures[0].Apply();
+        }
+        else if (mapType == MapType.HeightMap)
+        {
+            Color[] colorMap = new Color[mapWidth * mapHeight];
+            for (int y = 0; y < mapHeight; y++)
+            {
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    float currentHeight = noiseMap[x, y];
+                    for (int i = 0; i < regions.Length; i++)
+                    {
+                        if (currentHeight <= regions[i].height)
+                        {
+                            colorMap[y * mapWidth + x] = regions[i].color;
+                            break;
+                        }
+                    }
+                }
+            }
+            textures[0].SetPixels(colorMap);
+            textures[0].Apply();
+        }
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawTextureOnPlane(textures[0]);
     }
@@ -61,6 +88,7 @@ public class MapGenerator : MonoBehaviour {
 public class NoiseFunctions
 {
     public enum NoiseType { Perlin, Billow, RiggedMultifractal, Voronoi };
+    [Range(0,1)]
     public float noiseScale = 0.5f;
     public NoiseType type = NoiseType.Perlin;
     public bool enabled = false;
@@ -105,3 +133,12 @@ public class NoiseFunctions
 
     }
 }
+
+[System.Serializable]
+public struct TerrainType
+{
+    public string name;
+    public double height;
+    public Color color;
+}
+
