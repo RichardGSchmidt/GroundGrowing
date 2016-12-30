@@ -8,6 +8,7 @@ using LibNoise.Unity;
 public class MapGenerator : MonoBehaviour {
 
     public enum MapType {NoiseMap, HeightMap};
+    public bool seamless = false;
     public MapType mapType;
     public int mapWidth;
     public int mapHeight;
@@ -48,7 +49,7 @@ public class MapGenerator : MonoBehaviour {
 
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
         //noiseMap.GenerateSpherical(-1, 1, -1, 1);  //Needs research
-        noiseMap.GeneratePlanar(-1, 1, -1, 1, true);  //the 5 argument version is good for sphere's, may use falloff map for poles and generate seperate meshes for icecaps, not sure
+        noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);  //the 5 argument version is good for sphere's, may use falloff map for poles and generate seperate meshes for icecaps, not sure
 
         if (mapType == MapType.NoiseMap)
         {
