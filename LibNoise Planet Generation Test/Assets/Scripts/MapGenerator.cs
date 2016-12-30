@@ -46,11 +46,10 @@ public class MapGenerator : MonoBehaviour {
                 baseModule = new Add(baseModule, noiseFunctions[i].moduleBase);
             }
         }
-
+        baseModule = new Clamp(0, 1, baseModule); //clamps the base module to between 0 and 1
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
         //noiseMap.GenerateSpherical(-1, 1, -1, 1);  //Needs research
         noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);  //the 5 argument version is good for sphere's, may use falloff map for poles and generate seperate meshes for icecaps, not sure
-
         if (mapType == MapType.NoiseMap)
         {
             textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
