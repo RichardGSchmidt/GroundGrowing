@@ -109,13 +109,11 @@ public class MapGenerator : MonoBehaviour {
 
 //trying to build this entire program usable for world generation from the editor, encapsulating effects in orderable serialized classes for this reason.
 [System.Serializable]
-public class NoiseFunctions     //possibly make lower classes derrived classes of noise function in order to streamline the inspector
-                                //by making derrived class objects I can easily change what is viewed in the inspector window to directly
-                                //correlate with what is relavent to the noise type. -RGS
+public class NoiseFunctions     
 {
-    public enum NoiseType { Perlin, Billow, RiggedMultifractal, Voronoi };
+    public enum NoiseType { Perlin, Billow, RiggedMultifractal, Voronoi, None };
     [Range(0,1)]
-    public float noiseScale = 0.5f;
+    //public float noiseScale = 0.5f;
     public NoiseType type = NoiseType.Perlin;
     public bool enabled = false;
     public ModuleBase moduleBase;
@@ -144,6 +142,18 @@ public class NoiseFunctions     //possibly make lower classes derrived classes o
     //[HideInInspector]
     public bool distance;
 
+    public NoiseFunctions()
+    {
+        enabled = true;
+        frequency = 1;
+        lacunarity = 2.2;
+        persistence = 0.5;
+        octaves = 1;
+        qualityMode = QualityMode.Low;
+        displacement = 1;
+        distance = true;
+
+    }
 
 
     //generates the mesh based on selected noise type
