@@ -7,27 +7,41 @@ using LibNoise.Unity;
 
 public class MapGenerator : MonoBehaviour {
 
-    public enum MapType {NoiseMap, HeightMap};
+    //enum to determain which texture to generate
+    public enum MapType {NoiseMap, ColorMap};
+    
+    //bool to select between seamless and non seamless map generation
+    //It should be noted that seamless generation takes much more time
     public bool seamless = false;
+
+    //inspector varibles
     public MapType mapType;
     public int mapWidth;
     public int mapHeight;
     public string seed;
     public bool useRandomSeed = true;
     public bool autoUpdate = false;
+    //hidden because this is generated via editor scripting
     [HideInInspector]
     public int seedValue = 0;
+
+
     private Noise2D noiseMap = null;
-    public Texture2D[] textures = new Texture2D[3];
+    public Texture2D[] textures = new Texture2D[3];  //other array members are for normal map / uv's
     public NoiseFunctions[] noiseFunctions;
     public TerrainType[] regions;
     private ModuleBase baseModule = null;
 
-
+    //map generation script
     public void GenerateMap()
     {
+        //this is the base noise module that will be manipulated 
         baseModule = null;
+        //this is the noisemap that will be generated
         noiseMap = null;
+        
+        //generates meshes for every noisefunction
+        
         for (int i = 0; i < noiseFunctions.Length; i++)
         {
             if (noiseFunctions[i].enabled)
@@ -35,27 +49,37 @@ public class MapGenerator : MonoBehaviour {
                 noiseFunctions[i].FormMesh();
             }
         }
+        
+        //manipulates the base module based on the noise modules
         for (int i = 0; i < noiseFunctions.Length; i++)
         {
+            //for first valid noise pattern
             if (baseModule == null&&noiseFunctions[i].enabled)
             {
                 baseModule = noiseFunctions[i].moduleBase;
             }
+            //all others after the first modify the previous iteration of the baseModule
             else if(noiseFunctions[i].enabled)
             {
                 baseModule = new Add(baseModule, noiseFunctions[i].moduleBase);
             }
         }
-        baseModule = new Clamp(0, 1, baseModule); //clamps the base module to between 0 and 1
+        //clamps the module to between 1 and 0
+        baseModule = new Clamp(0, 1, baseModule);
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
-        //noiseMap.GenerateSpherical(-1, 1, -1, 1);  //Needs research
-        noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);  //the 5 argument version is good for sphere's, may use falloff map for poles and generate seperate meshes for icecaps, not sure
+
+        //Generates a planar map that is either seamless or not based on user input
+        noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
+
+        //generates a raw noise type based on the public enum
         if (mapType == MapType.NoiseMap)
         {
             textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
             textures[0].Apply();
         }
-        else if (mapType == MapType.HeightMap)
+
+        //generates a color map based on the public enum
+        else if (mapType == MapType.ColorMap)
         {
             Color[] colorMap = new Color[mapWidth * mapHeight];
             for (int y = 0; y < mapHeight; y++)
@@ -85,7 +109,9 @@ public class MapGenerator : MonoBehaviour {
 
 //trying to build this entire program usable for world generation from the editor, encapsulating effects in orderable serialized classes for this reason.
 [System.Serializable]
-public class NoiseFunctions
+public class NoiseFunctions     //possibly make lower classes derrived classes of noise function in order to streamline the inspector
+                                //by making derrived class objects I can easily change what is viewed in the inspector window to directly
+                                //correlate with what is relavent to the noise type. -RGS
 {
     public enum NoiseType { Perlin, Billow, RiggedMultifractal, Voronoi };
     [Range(0,1)]
@@ -120,7 +146,7 @@ public class NoiseFunctions
 
 
 
-
+    //generates the mesh based on selected noise type
     public void FormMesh()
     {
 
@@ -134,6 +160,7 @@ public class NoiseFunctions
     }
 }
 
+//serializable to be accessible in the inspector
 [System.Serializable]
 public struct TerrainType
 {
