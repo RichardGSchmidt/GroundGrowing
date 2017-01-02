@@ -142,6 +142,7 @@ public class MapGenerator : MonoBehaviour {
             {
                 holder[i] = new NoiseFunctions(loadedPresets[i]);
             }
+            noiseFunctions = new NoiseFunctions[holder.Length];
             noiseFunctions = holder;
             file.Close();
         }
@@ -239,15 +240,15 @@ public class NoiseFunctions
         {
             type = NoiseType.Billow;
         }
-        if (presets.noiseType == NoisePresets.NoiseType.Perlin)
+        else if (presets.noiseType == NoisePresets.NoiseType.Perlin)
         {
             type = NoiseType.Perlin;
         }
-        if (presets.noiseType == NoisePresets.NoiseType.RiggedMultifractal)
+        else if (presets.noiseType == NoisePresets.NoiseType.RiggedMultifractal)
         {
             type = NoiseType.RiggedMultifractal;
         }
-        if (presets.noiseType == NoisePresets.NoiseType.Voronoi)
+        else if (presets.noiseType == NoisePresets.NoiseType.Voronoi)
         {
             type = NoiseType.Voronoi;
         }
