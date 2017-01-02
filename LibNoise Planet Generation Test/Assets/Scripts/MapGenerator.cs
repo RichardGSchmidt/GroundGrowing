@@ -6,9 +6,12 @@ using LibNoise.Unity.Operator;
 using LibNoise.Unity;
 
 public class MapGenerator : MonoBehaviour {
-
+    #region public values
     //enum to determain which texture to generate
     public enum MapType {NoiseMap, ColorMap};
+    public enum RenderType {FlatMap, Sphere };
+    [HideInInspector]
+    public GameObject mapCanvas;
     
     //bool to select between seamless and non seamless map generation
     //It should be noted that seamless generation takes much more time
@@ -16,28 +19,31 @@ public class MapGenerator : MonoBehaviour {
 
     //inspector varibles
     public MapType mapType;
+    public RenderType renderType;
     public int mapWidth;
     public int mapHeight;
     public string seed;
     public bool useRandomSeed = true;
-    public bool autoUpdate = false;
+    //public bool autoUpdate = false;
     //hidden because this is generated via editor scripting
     [HideInInspector]
     public int seedValue = 0;
-
+    #endregion
 
     private Noise2D noiseMap = null;
+    [HideInInspector]
     public Texture2D[] textures = new Texture2D[3];  //other array members are for normal map / uv's
-
     //hidden in inspector because of custom inspector implementation
     [HideInInspector]
     public NoiseFunctions[] noiseFunctions;
     public TerrainType[] regions;
     private ModuleBase baseModule = null;
+    #region Map, Texture, and Object Generation
 
     //map generation script
     public void GenerateMap()
     {
+        GenerateMapCanvas();
         //this is the base noise module that will be manipulated 
         baseModule = null;
         //this is the noisemap that will be generated
@@ -106,8 +112,29 @@ public class MapGenerator : MonoBehaviour {
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawTextureOnPlane(textures[0]);
     }
-
     
+    private void GenerateMapCanvas()
+    {
+        //destroys even in editmode
+        DestroyImmediate(mapCanvas);
+        //this will be replaced with the procedurally generated sphere in the other scene
+        if (renderType == RenderType.Sphere) 
+        {
+            mapCanvas = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            MapDisplay display = FindObjectOfType<MapDisplay>();
+            display.TextureRender = mapCanvas.GetComponent<Renderer>();
+            mapCanvas.transform.position = new Vector3(0, 0, 0);
+        }
+        else
+        {
+            mapCanvas = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            MapDisplay display = FindObjectOfType<MapDisplay>();
+            display.TextureRender = mapCanvas.GetComponent<Renderer>();
+            mapCanvas.transform.position = new Vector3(0, 0, 0);
+        }
+    }
+    #endregion
+
 }
 
 //trying to build this entire program usable for world generation from the editor, encapsulating effects in orderable serialized classes for this reason.

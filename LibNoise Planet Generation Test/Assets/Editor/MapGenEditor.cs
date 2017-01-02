@@ -12,17 +12,22 @@ public class MapGenEditor : Editor {
 
     public override void OnInspectorGUI()
     {
-        
-            MapGenerator mapGen = (MapGenerator)target;
 
+        #region Standard Calls
+         
+        MapGenerator mapGen = (MapGenerator)target;
         DrawDefaultInspector();
+        #endregion
 
-            //error control to keep height positive and non zero
-            if (mapGen.mapWidth < 1) mapGen.mapWidth = 1;
-            if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
+        #region Error Control
+        //error control to keep height positive and non zero
+        if (mapGen.mapWidth < 1) mapGen.mapWidth = 1;
+        if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
+        #endregion
 
-            //start the fold out for noise functions
-            showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
+        #region Custom Noise Functions Editor Extensions
+        //start the fold out for noise functions
+        showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
             if (showNoiseFunctions)
             {
                 if (GUILayout.Button("Add New Noise Function"))
@@ -67,11 +72,11 @@ public class MapGenEditor : Editor {
                 mapGen.noiseFunctions[i].seed = mapGen.seedValue + i;
             }
 
-            //autoupdate function, so far it's really slow, may remove
-            if (mapGen.autoUpdate)
-            {
-                mapGen.GenerateMap();
-            }
+         //   autoupdate function, so far it's really slow, removed temporarily
+         //   if (mapGen.autoUpdate)
+         //   {
+         //       mapGen.GenerateMap();
+         //   }
 
             if (GUILayout.Button("Generate"))
             {
@@ -243,6 +248,8 @@ public class MapGenEditor : Editor {
             }
             noiseFunc.enabled = false;
         }
+        #endregion
+
     }
     
 }
