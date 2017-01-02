@@ -12,76 +12,71 @@ public class MapGenEditor : Editor {
 
     public override void OnInspectorGUI()
     {
-        MapGenerator mapGen = (MapGenerator)target;
-        //Universal Displays
-        mapGen.mapType = (MapGenerator.MapType)EditorGUILayout.EnumPopup("Type of Map to Generate", mapGen.mapType);
-        mapGen.seamless = EditorGUILayout.ToggleLeft("Seamless Map",mapGen.seamless);
-        mapGen.autoUpdate = EditorGUILayout.ToggleLeft("Autoupdate (Warning, Slow)", mapGen.autoUpdate);
-        mapGen.mapWidth = EditorGUILayout.IntField("Width of Map: ", mapGen.mapWidth);
-        mapGen.mapHeight = EditorGUILayout.IntField("Height of Map: ", mapGen.mapHeight);
-        mapGen.seed = EditorGUILayout.TextField("Seed: ", mapGen.seed);
-
         
-        //error control to keep height positive and non zero
-        if (mapGen.mapWidth < 1) mapGen.mapWidth = 1;
-        if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
+            MapGenerator mapGen = (MapGenerator)target;
 
-        //start the fold out for noise functions
-        showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
-        if (showNoiseFunctions)
-        {
-            if (GUILayout.Button("Add New Noise Function"))
-            {
-                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length + 1];
-                for (int j = 0; j < mapGen.noiseFunctions.Length; j++)
-                {
-                    placeholder[j] = mapGen.noiseFunctions[j];
-                }
-                placeholder[mapGen.noiseFunctions.Length] = new NoiseFunctions();
-                mapGen.noiseFunctions = new NoiseFunctions[placeholder.Length];
-                for (int j = 0; j < placeholder.Length; j++)
-                {
-                    mapGen.noiseFunctions[j] = placeholder[j];
-                }
-                return;
-            }
+        DrawDefaultInspector();
 
-        }
+            //error control to keep height positive and non zero
+            if (mapGen.mapWidth < 1) mapGen.mapWidth = 1;
+            if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
 
-        //going through the noise functions
-        for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-        {
+            //start the fold out for noise functions
+            showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
             if (showNoiseFunctions)
             {
-                GetInspectorElements(mapGen.noiseFunctions[i], i);
-            }
-            //transfers height / width
-            mapGen.noiseFunctions[i].height = mapGen.mapHeight;
-            mapGen.noiseFunctions[i].width = mapGen.mapWidth;
-            
-            //seed distribution, lots of i's scattered for fun
-            if (!mapGen.useRandomSeed)
-            {
-                    mapGen.seedValue = mapGen.seed.GetHashCode()*i;
+                if (GUILayout.Button("Add New Noise Function"))
+                {
+                    NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length + 1];
+                    for (int j = 0; j < mapGen.noiseFunctions.Length; j++)
+                    {
+                        placeholder[j] = mapGen.noiseFunctions[j];
+                    }
+                    placeholder[mapGen.noiseFunctions.Length] = new NoiseFunctions();
+                    mapGen.noiseFunctions = new NoiseFunctions[placeholder.Length];
+                    for (int j = 0; j < placeholder.Length; j++)
+                    {
+                        mapGen.noiseFunctions[j] = placeholder[j];
+                    }
+                    return;
+                }
+
             }
 
-            else
+            //going through the noise functions
+            for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
             {
-                mapGen.seedValue = Random.Range(0, 10000000);
-            }
+                if (showNoiseFunctions)
+                {
+                    GetInspectorElements(mapGen.noiseFunctions[i], i);
+                }
+                //transfers height / width
+                mapGen.noiseFunctions[i].height = mapGen.mapHeight;
+                mapGen.noiseFunctions[i].width = mapGen.mapWidth;
+
+                //seed distribution, lots of i's scattered for fun
+                if (!mapGen.useRandomSeed)
+                {
+                    mapGen.seedValue = mapGen.seed.GetHashCode() * i;
+                }
+
+                else
+                {
+                    mapGen.seedValue = Random.Range(0, 10000000);
+                }
                 mapGen.noiseFunctions[i].seed = mapGen.seedValue + i;
-        }
+            }
 
-        //autoupdate function, so far it's really slow, may remove
-        if (mapGen.autoUpdate)
-        {
-            mapGen.GenerateMap();
-        }        
+            //autoupdate function, so far it's really slow, may remove
+            if (mapGen.autoUpdate)
+            {
+                mapGen.GenerateMap();
+            }
 
-        if (GUILayout.Button("Generate"))
-        {
-            mapGen.GenerateMap();
-        }
+            if (GUILayout.Button("Generate"))
+            {
+                mapGen.GenerateMap();
+            }
     }
 
     public void GetInspectorElements(NoiseFunctions noiseFunc, int index)

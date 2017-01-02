@@ -28,6 +28,9 @@ public class MapGenerator : MonoBehaviour {
 
     private Noise2D noiseMap = null;
     public Texture2D[] textures = new Texture2D[3];  //other array members are for normal map / uv's
+
+    //hidden in inspector because of custom inspector implementation
+    [HideInInspector]
     public NoiseFunctions[] noiseFunctions;
     public TerrainType[] regions;
     private ModuleBase baseModule = null;
