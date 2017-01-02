@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.UI;
 
 [CustomEditor(typeof (MapGenerator))]
 public class MapGenEditor : Editor {
@@ -9,6 +10,7 @@ public class MapGenEditor : Editor {
     public NoiseFunctions.NoiseType noiseType;
     public bool showNoiseFunctions;
     public bool showTextures;
+    private string fileName;
 
     public override void OnInspectorGUI()
     {
@@ -28,24 +30,36 @@ public class MapGenEditor : Editor {
         #region Custom Noise Functions Editor Extensions
         //start the fold out for noise functions
         showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
-            if (showNoiseFunctions)
+        if (showNoiseFunctions)
+        {
+            if (GUILayout.Button("Add New Noise Function"))
             {
-                if (GUILayout.Button("Add New Noise Function"))
+                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length + 1];
+                for (int j = 0; j < mapGen.noiseFunctions.Length; j++)
                 {
-                    NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length + 1];
-                    for (int j = 0; j < mapGen.noiseFunctions.Length; j++)
-                    {
-                        placeholder[j] = mapGen.noiseFunctions[j];
-                    }
-                    placeholder[mapGen.noiseFunctions.Length] = new NoiseFunctions();
-                    mapGen.noiseFunctions = new NoiseFunctions[placeholder.Length];
-                    for (int j = 0; j < placeholder.Length; j++)
-                    {
-                        mapGen.noiseFunctions[j] = placeholder[j];
-                    }
-                    return;
+                    placeholder[j] = mapGen.noiseFunctions[j];
                 }
+                placeholder[mapGen.noiseFunctions.Length] = new NoiseFunctions();
+                mapGen.noiseFunctions = new NoiseFunctions[placeholder.Length];
+                for (int j = 0; j < placeholder.Length; j++)
+                {
+                    mapGen.noiseFunctions[j] = placeholder[j];
+                }
+                return;
+            }
 
+            
+            if (GUILayout.Button("Save This Noise Preset"))
+            {
+                fileName = EditorUtility.SaveFilePanel("Save a New Preset", Application.dataPath, "Noise Preset", "npr");
+                mapGen.SavePresets(mapGen.noiseFunctions, fileName); 
+            }
+            if (GUILayout.Button("Load Preset From File"))
+            {
+                fileName = EditorUtility.OpenFilePanel("Load a noise File ", null, "npr");
+                mapGen.LoadPresets(fileName);
+            }
+            
             }
 
             //going through the noise functions
@@ -83,7 +97,7 @@ public class MapGenEditor : Editor {
                 mapGen.GenerateMap();
             }
     }
-
+    #region functions to draw inspector elements based on noise function type
     public void GetInspectorElements(NoiseFunctions noiseFunc, int index)
     {
 
@@ -251,5 +265,6 @@ public class MapGenEditor : Editor {
         #endregion
 
     }
-    
+    #endregion
+
 }

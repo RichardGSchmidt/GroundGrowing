@@ -4,6 +4,9 @@ using UnityEngine;
 using LibNoise.Unity.Generator;
 using LibNoise.Unity.Operator;
 using LibNoise.Unity;
+using System;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class MapGenerator : MonoBehaviour {
     #region public values
@@ -112,7 +115,39 @@ public class MapGenerator : MonoBehaviour {
         MapDisplay display = FindObjectOfType<MapDisplay>();
         display.DrawTextureOnPlane(textures[0]);
     }
-    
+
+    public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
+    {
+        NoisePresets[] presetsToSave = new NoisePresets[savedPresets.Length];
+        for (int i = 0; i < savedPresets.Length; i++)
+        {
+            presetsToSave[i] = noiseFunctions[i].GetPresets();
+        }
+
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Create(destpath);
+        bf.Serialize(file, presetsToSave);
+        file.Close();
+    }
+
+    public void LoadPresets(string filePath)  //loads map from a given string location
+    {
+        if (File.Exists(filePath))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(filePath, FileMode.Open);
+            NoisePresets[] loadedPresets = (NoisePresets[])bf.Deserialize(file);
+            NoiseFunctions[] holder = new NoiseFunctions[loadedPresets.Length];
+            for (int i = 0; i < loadedPresets.Length; i++)
+            {
+                holder[i] = new NoiseFunctions(loadedPresets[i]);
+            }
+            noiseFunctions = holder;
+            file.Close();
+        }
+    }
+
+
     private void GenerateMapCanvas()
     {
         //destroys even in editmode
@@ -136,7 +171,7 @@ public class MapGenerator : MonoBehaviour {
     #endregion
 
 }
-
+#region Serialized Data Sets
 //trying to build this entire program usable for world generation from the editor, encapsulating effects in orderable serialized classes for this reason.
 [System.Serializable]
 public class NoiseFunctions     
@@ -151,25 +186,19 @@ public class NoiseFunctions
     public int height;
     [HideInInspector]
     public int width;
-
-    //Billow and Perlin Inputs
+ 
     [Range(0f,20f)]
-    public double frequency; // on all
+    public double frequency;
     [Range(2.0000000f, 2.5000000f)]
-    public double lacunarity; // on all but voronoi
-    //[HideInInspector]
+    public double lacunarity;
     [Range(0f, 1f)]
-    public double persistence;  //Not on Rigged MultiFractal or voronoi
-    //[HideInInspector]
+    public double persistence;
     [Range(1,18)]
-    public int octaves;//all but voronoi
-    [HideInInspector]
-    public int seed;//yeah all
-    public QualityMode qualityMode;//not on voronoi
-    //Voronoi Inputs also frequency and seed from previous
-    //[HideInInspector]
+    public int octaves;
+    public int seed;
+    public QualityMode qualityMode;
+
     public double displacement;
-    //[HideInInspector]
     public bool distance;
 
     public NoiseFunctions()
@@ -185,6 +214,102 @@ public class NoiseFunctions
 
     }
 
+    #region Noise Functions Preset Handling
+    public NoiseFunctions(NoisePresets presets)
+    {
+        enabled = presets.enabled;
+        frequency = presets.frequency;
+        lacunarity = presets.lacunarity;
+        persistence = presets.persistence;
+        octaves = presets.octaves;
+        if (presets.qualityMode == NoisePresets.QualityMode.High)
+        {
+            qualityMode = QualityMode.High;
+        }
+        else if (presets.qualityMode == NoisePresets.QualityMode.Medium)
+        {
+            qualityMode = QualityMode.Medium;
+        }
+        else 
+        {
+            qualityMode = QualityMode.Low;
+        }
+
+        if (presets.noiseType == NoisePresets.NoiseType.Billow)
+        {
+            type = NoiseType.Billow;
+        }
+        if (presets.noiseType == NoisePresets.NoiseType.Perlin)
+        {
+            type = NoiseType.Perlin;
+        }
+        if (presets.noiseType == NoisePresets.NoiseType.RiggedMultifractal)
+        {
+            type = NoiseType.RiggedMultifractal;
+        }
+        if (presets.noiseType == NoisePresets.NoiseType.Voronoi)
+        {
+            type = NoiseType.Voronoi;
+        }
+        else 
+        {
+            type = NoiseType.None;
+        }
+
+
+
+        displacement = presets.displacement;
+        distance = presets.distance;
+    }
+    public NoisePresets GetPresets()
+    {
+        NoisePresets preset = new NoisePresets();
+        preset.enabled = enabled;
+        preset.frequency = frequency;
+        preset.lacunarity = lacunarity;
+        preset.persistence = persistence;
+        preset.octaves = octaves;
+        preset.displacement = displacement;
+        preset.distance = distance;
+
+
+        if (qualityMode == QualityMode.High)
+        {
+            preset.qualityMode = NoisePresets.QualityMode.High;
+        }
+        else if (qualityMode == QualityMode.Medium)
+        {
+            preset.qualityMode = NoisePresets.QualityMode.Medium;
+        }
+        else 
+        {
+            preset.qualityMode = NoisePresets.QualityMode.Low;
+        }
+
+        if (type == NoiseType.Perlin)
+        {
+            preset.noiseType = NoisePresets.NoiseType.Perlin;
+        }
+        else if (type == NoiseType.Billow)
+        {
+            preset.noiseType = NoisePresets.NoiseType.Billow;
+        }
+        else if (type == NoiseType.RiggedMultifractal)
+        {
+            preset.noiseType = NoisePresets.NoiseType.RiggedMultifractal;
+        }
+        else if (type == NoiseType.Voronoi)
+        {
+            preset.noiseType = NoisePresets.NoiseType.Voronoi;
+        }
+        else
+        {
+            preset.noiseType = NoisePresets.NoiseType.None;
+        }
+
+        return preset;
+    }
+    #endregion
 
     //generates the mesh based on selected noise type
     public void FormMesh()
@@ -200,6 +325,29 @@ public class NoiseFunctions
     }
 }
 
+[System.Serializable]
+public struct NoisePresets
+{
+    public enum NoiseType { Perlin, Billow, RiggedMultifractal, Voronoi, None };
+    public enum QualityMode
+    {
+        Low,
+        Medium,
+        High,
+    }
+    public NoiseType noiseType;
+    public bool enabled;
+    public double frequency;
+    public double lacunarity;
+    public double persistence;
+    public int octaves;
+    public QualityMode qualityMode;
+    public double displacement;
+    public bool distance;
+
+}
+
+
 //serializable to be accessible in the inspector
 [System.Serializable]
 public struct TerrainType
@@ -208,4 +356,4 @@ public struct TerrainType
     public double height;
     public Color color;
 }
-
+#endregion
