@@ -25,25 +25,26 @@ public static class MagicSphere
     {
         Vector3[] verts =
         {
-            Vector3.down,
+            Vector3.down, Vector3.down, Vector3.down, Vector3.down,
             Vector3.forward,
             Vector3.left,
             Vector3.back,
             Vector3.right,
-            Vector3.up
+            Vector3.up, Vector3.up, Vector3.up, Vector3.up
         };
-
+       
         int[] triangles =
         {
-            0,1,2,
-            0,2,3,
-            0,3,4,
-            0,4,1,
+            //notice that they count down sequentially in a pattern
+            0, 4, 5,
+            1, 5, 6,
+            2, 6, 7,
+            3, 7, 8,
 
-            5,2,1,
-            5,3,2,
-            5,4,3,
-            5,1,4
+             9, 5, 4,
+            10, 6, 5,
+            11, 7, 6,
+            12, 8, 7
         };
 
         //every time the sphere isn't a unit sphere the radius will adjust
@@ -85,17 +86,37 @@ public static class MagicSphere
     {
         for (int i = 0; i < verts.Length; i++)
         {
-            Vector3 v = verts[i];
+            float previousX = 1f;
+            
+            Vector3 vert = verts[i];
+            if (vert.x == previousX)
+            {
+                uvs[i - 1].x = 1f;
+            }
+            Vector2 textureCoords;
+            textureCoords.x = Mathf.Atan2(vert.x, vert.z) / (-2f * Mathf.PI);
+            if (textureCoords.x < 0f)
+            {
+                textureCoords.x += 1f;
+
+            }
+            
             Vector2 textCoords;
-            textCoords.x = Mathf.Atan2(v.x, v.z) / (-2 * Mathf.PI);
+
+            textCoords.x = Mathf.Atan2(vert.x, vert.z) / (-2 * Mathf.PI);
             if (textCoords.x < 0f)
             {
                 textCoords.x += 1f;
             }
 
-            textCoords.y = Mathf.Asin(v.y) / Mathf.PI + 0.5f;
+            textCoords.y = Mathf.Asin(vert.y) / Mathf.PI + 0.5f;
             uvs[i] = textCoords;
         }
+
+        uvs[verts.Length - 4].x = uvs[0].x = 0.125f;
+        uvs[verts.Length - 3].x = uvs[1].x = 0.375f;
+        uvs[verts.Length - 2].x = uvs[2].x = 0.625f;
+        uvs[verts.Length - 1].x = uvs[3].x = 0.875f;
 
     }
 }
