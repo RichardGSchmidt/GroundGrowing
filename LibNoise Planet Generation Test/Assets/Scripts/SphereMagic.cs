@@ -53,6 +53,9 @@ public static class MagicSphere
         Vector3[] normals = new Vector3[verts.Length];
         Normalize(verts, normals);
 
+        Vector2[] uvs = new Vector2[verts.Length];
+        CreateUV(verts, uvs);
+
         if (radius != 1f)
         {
             for (int i = 0; i < verts.Length; i++)
@@ -65,6 +68,7 @@ public static class MagicSphere
         mesh.name  = "MagicSphere";
         mesh.vertices = verts;
         mesh.normals = normals;
+        mesh.uv = uvs;
         mesh.triangles = triangles;
         return mesh;
     }
@@ -75,5 +79,23 @@ public static class MagicSphere
         {
             norms[i] = vertices[i] = vertices[i].normalized;
         }
+    }
+
+    private static void CreateUV(Vector3[] verts, Vector2[]uvs)
+    {
+        for (int i = 0; i < verts.Length; i++)
+        {
+            Vector3 v = verts[i];
+            Vector2 textCoords;
+            textCoords.x = Mathf.Atan2(v.x, v.z) / (-2 * Mathf.PI);
+            if (textCoords.x < 0f)
+            {
+                textCoords.x += 1f;
+            }
+
+            textCoords.y = Mathf.Asin(v.y) / Mathf.PI + 0.5f;
+            uvs[i] = textCoords;
+        }
+
     }
 }

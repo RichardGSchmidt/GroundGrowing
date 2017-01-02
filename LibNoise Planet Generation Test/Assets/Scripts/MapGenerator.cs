@@ -129,6 +129,11 @@ public class MapGenerator : MonoBehaviour {
         bf.Serialize(file, presetsToSave);
         file.Close();
     }
+    
+    public void SaveImage(string filePath)
+    {
+        System.IO.File.WriteAllBytes(filePath, textures[0].EncodeToPNG());
+    }
 
     public void LoadPresets(string filePath)  //loads map from a given string location
     {

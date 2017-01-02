@@ -21,4 +21,6 @@ public class MapDisplay : MonoBehaviour {
             TextureRender.transform.localScale = new Vector3(texture.height, texture.height, texture.height);
         }
     }
+
+    
 }

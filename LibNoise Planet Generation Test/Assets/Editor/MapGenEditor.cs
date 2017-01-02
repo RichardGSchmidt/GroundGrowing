@@ -27,6 +27,13 @@ public class MapGenEditor : Editor {
         if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
         #endregion
 
+        if (GUILayout.Button("Save Image"))
+        {
+            fileName = EditorUtility.SaveFilePanel("Save a Copy of Texture", Application.dataPath, "mapimage", "png");
+            mapGen.SaveImage(fileName);
+        }
+
+
         #region Custom Noise Functions Editor Extensions
         //start the fold out for noise functions
         showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
@@ -48,7 +55,7 @@ public class MapGenEditor : Editor {
                 return;
             }
 
-            
+            #region Save / Load Functions
             if (GUILayout.Button("Save This Noise Preset"))
             {
                 fileName = EditorUtility.SaveFilePanel("Save a New Preset", Application.dataPath, "Noise Preset", "npr");
@@ -60,10 +67,11 @@ public class MapGenEditor : Editor {
                 mapGen.LoadPresets(fileName);
             }
             
-            }
+        }
+            #endregion
 
-            //going through the noise functions
-            for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
+        //going through the noise functions
+        for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
             {
                 if (showNoiseFunctions)
                 {
@@ -266,5 +274,7 @@ public class MapGenEditor : Editor {
 
     }
     #endregion
+
+
 
 }
