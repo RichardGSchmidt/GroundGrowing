@@ -80,8 +80,15 @@ public class MapGenerator : MonoBehaviour {
         baseModule = new Clamp(0, 1, baseModule);
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
 
-        //Generates a planar map that is either seamless or not based on user input
-        noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
+        //Generates a planar map or spherical map that is either seamless or not based on user input
+        if (renderType == RenderType.FlatMap)
+        {
+            noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
+        }
+        if (renderType == RenderType.Sphere)
+        {
+            noiseMap.GenerateSpherical(-90, 90, -180, 180);
+        }
 
         //generates a raw noise type based on the public enum
         if (mapType == MapType.NoiseMap)
