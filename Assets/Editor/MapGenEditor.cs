@@ -18,7 +18,11 @@ public class MapGenEditor : Editor {
         #region Standard Calls
          
         MapGenerator mapGen = (MapGenerator)target;
-        DrawDefaultInspector();
+        if (DrawDefaultInspector())
+        {
+            if (mapGen.autoUpdate)
+            { mapGen.GenerateMap(); }
+        }
         #endregion
 
         #region Error Control
@@ -27,15 +31,16 @@ public class MapGenEditor : Editor {
         if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
         #endregion
 
+        #region Image Save Functionality
+
         if (GUILayout.Button("Save Image"))
         {
             fileName = EditorUtility.SaveFilePanel("Save a Copy of Texture", Application.dataPath, "mapimage", "png");
             mapGen.SaveImage(fileName);
         }
+#endregion
 
-
-        #region Custom Noise Functions Editor Extensions
-        //start the fold out for noise functions
+        #region Noise Functions Foldout
         showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
         if (showNoiseFunctions)
         {
@@ -68,9 +73,11 @@ public class MapGenEditor : Editor {
             }
             
         }
-            #endregion
+        #endregion
+#endregion
 
-        //going through the noise functions
+        #region Noise Function Maintenence
+        //used to adjust values in noise functions for editor use
         for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
             {
                 if (showNoiseFunctions)
@@ -93,22 +100,23 @@ public class MapGenEditor : Editor {
                 }
                 mapGen.noiseFunctions[i].seed = mapGen.seedValue + i;
             }
+#endregion
 
-         //   autoupdate function, so far it's really slow, removed temporarily
-         //   if (mapGen.autoUpdate)
-         //   {
-         //       mapGen.GenerateMap();
-         //   }
+        //   autoupdate function, so far it's really slow, removed temporarily
+        //   if (mapGen.autoUpdate)
+        //   {
+        //       mapGen.GenerateMap();
+        //   }
 
-            if (GUILayout.Button("Generate"))
+        if (GUILayout.Button("Generate"))
             {
                 mapGen.GenerateMap();
             }
     }
-    #region functions to draw inspector elements based on noise function type
+   
     public void GetInspectorElements(NoiseFunctions noiseFunc, int index)
     {
-
+        #region Perlin Function UI
         if (noiseFunc.type == NoiseFunctions.NoiseType.Perlin)
         {
             EditorGUILayout.Space();
@@ -142,6 +150,9 @@ public class MapGenEditor : Editor {
                 
             }
         }
+        #endregion
+
+        #region Billow Function UI
         else if (noiseFunc.type == NoiseFunctions.NoiseType.Billow)
         {
             EditorGUILayout.Space();
@@ -175,6 +186,9 @@ public class MapGenEditor : Editor {
 
             }
         }
+#endregion
+
+        #region Voronoi UI
         else if (noiseFunc.type == NoiseFunctions.NoiseType.Voronoi)
         {
             EditorGUILayout.Space();
@@ -207,6 +221,9 @@ public class MapGenEditor : Editor {
             }
 
         }
+#endregion
+
+        #region Rigged Multifractal UI
         else if (noiseFunc.type == NoiseFunctions.NoiseType.RiggedMultifractal)
         {
 
@@ -241,6 +258,9 @@ public class MapGenEditor : Editor {
 
             }
         }
+        #endregion
+
+        #region None UI
         else if (noiseFunc.type == NoiseFunctions.NoiseType.None)
         {
 
@@ -270,10 +290,13 @@ public class MapGenEditor : Editor {
             }
             noiseFunc.enabled = false;
         }
+
         #endregion
 
+        
+
     }
-    #endregion
+  
 
 
 

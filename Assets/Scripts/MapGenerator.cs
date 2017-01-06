@@ -19,12 +19,13 @@ public class MapGenerator : MonoBehaviour {
     //bool to select between seamless and non seamless map generation
     //It should be noted that seamless generation takes much more time
     public bool seamless = false;
-
+    public bool clamped = true;
     //inspector varibles
     public MapType mapType;
     public RenderType renderType;
     public int mapWidth;
     public int mapHeight;
+    public bool autoUpdate;
 
     public float heightMultiplier;
     public AnimationCurve heightAdjuster;
@@ -45,7 +46,7 @@ public class MapGenerator : MonoBehaviour {
     public NoiseFunctions[] noiseFunctions;
     public TerrainType[] regions;
     private ModuleBase baseModule = null;
-    #region Map, Texture, and Object Generation
+    #region MapGeneration
 
     //map generation script
     public void GenerateMap()
@@ -81,7 +82,10 @@ public class MapGenerator : MonoBehaviour {
             }
         }
         //clamps the module to between 1 and 0
-        baseModule = new Clamp(0, 1, baseModule);
+        if (clamped)
+        {
+            baseModule = new Clamp(0, 1, baseModule);
+        }
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
 
         //Generates a planar map or spherical map that is either seamless or not based on user input
@@ -161,6 +165,8 @@ public class MapGenerator : MonoBehaviour {
         
     }
 
+    #endregion
+
     public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
     {
         NoisePresets[] presetsToSave = new NoisePresets[savedPresets.Length];
@@ -198,7 +204,6 @@ public class MapGenerator : MonoBehaviour {
         }
     }
 
-
     private void GenerateMapCanvas()
     {
         //destroys even in editmode
@@ -219,7 +224,6 @@ public class MapGenerator : MonoBehaviour {
             mapCanvas.transform.position = new Vector3(0, 0, 0);
         }
     }
-    #endregion
 
 }
 #region Serialized Data Sets
