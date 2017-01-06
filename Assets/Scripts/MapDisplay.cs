@@ -5,7 +5,8 @@ using UnityEngine;
 public class MapDisplay : MonoBehaviour {
 
     public Renderer TextureRender;
-    
+    public MeshFilter meshFilter;
+    public MeshRenderer meshRenderer;
 
     public void DrawTextureOnPlane(Texture2D texture)
     {
@@ -22,5 +23,12 @@ public class MapDisplay : MonoBehaviour {
         }
     }
 
+
+    public void DrawMesh(MeshData meshData, Texture2D texture)
+    {
+        meshFilter.sharedMesh = meshData.CreateMesh();
+        meshRenderer.sharedMaterial.mainTexture = texture;
+
+    }
     
 }

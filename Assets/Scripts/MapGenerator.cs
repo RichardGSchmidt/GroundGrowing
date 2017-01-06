@@ -11,7 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class MapGenerator : MonoBehaviour {
     #region public values
     //enum to determain which texture to generate
-    public enum MapType {NoiseMap, ColorMap};
+    public enum MapType {NoiseMap, ColorMap, Mesh};
     public enum RenderType {FlatMap, Sphere };
     [HideInInspector]
     public GameObject mapCanvas;
@@ -25,6 +25,10 @@ public class MapGenerator : MonoBehaviour {
     public RenderType renderType;
     public int mapWidth;
     public int mapHeight;
+
+    public float heightMultiplier;
+    public AnimationCurve heightAdjuster;
+
     public string seed;
     public bool useRandomSeed = true;
     //public bool autoUpdate = false;
@@ -46,14 +50,14 @@ public class MapGenerator : MonoBehaviour {
     //map generation script
     public void GenerateMap()
     {
-        GenerateMapCanvas();
         //this is the base noise module that will be manipulated 
         baseModule = null;
         //this is the noisemap that will be generated
         noiseMap = null;
-        
+        MapDisplay display = FindObjectOfType<MapDisplay>();
+
         //generates meshes for every noisefunction
-        
+
         for (int i = 0; i < noiseFunctions.Length; i++)
         {
             if (noiseFunctions[i].enabled)
@@ -90,17 +94,23 @@ public class MapGenerator : MonoBehaviour {
             noiseMap.GenerateSpherical(-90, 90, -180, 180);
         }
 
+        
+
         //generates a raw noise type based on the public enum
         if (mapType == MapType.NoiseMap)
         {
+            GenerateMapCanvas();
             textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
             textures[0].Apply();
+            display.DrawTextureOnPlane(textures[0]);
         }
 
         //generates a color map based on the public enum
         else if (mapType == MapType.ColorMap)
         {
+            GenerateMapCanvas();
             Color[] colorMap = new Color[mapWidth * mapHeight];
+            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
             for (int y = 0; y < mapHeight; y++)
             {
                 for (int x = 0; x < mapWidth; x++)
@@ -118,9 +128,37 @@ public class MapGenerator : MonoBehaviour {
             }
             textures[0].SetPixels(colorMap);
             textures[0].Apply();
+            display.DrawTextureOnPlane(textures[0]);
         }
-        MapDisplay display = FindObjectOfType<MapDisplay>();
-        display.DrawTextureOnPlane(textures[0]);
+
+        else if (mapType == MapType.Mesh)
+        {
+            display.TextureRender = FindObjectOfType<Renderer>();
+            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
+            Color[] colorMap = new Color[noiseMap.Width * noiseMap.Height];
+            for (int y = 0; y < noiseMap.Height; y++)
+            {
+                for (int x = 0; x < noiseMap.Width; x++)
+                {
+                    float currentHeight = noiseMap[x, y];
+                    for (int i = 0; i < regions.Length; i++)
+                    {
+                        if (currentHeight <= regions[i].height)
+                        {
+                            colorMap[y * noiseMap.Width + x] = regions[i].color;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            textures[0].SetPixels(colorMap);
+            textures[0].Apply();
+
+            display.DrawMesh(FlatMeshGenerator.GenerateTerrainMesh(noiseMap, heightMultiplier, heightAdjuster), textures[0]);
+        }
+        
+        
     }
 
     public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
