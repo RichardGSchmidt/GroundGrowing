@@ -30,5 +30,11 @@ public class MapDisplay : MonoBehaviour {
         meshRenderer.sharedMaterial.mainTexture = texture;
 
     }
+
+    public void DrawMesh(Mesh mesh, Texture2D texture)
+    {
+        meshFilter.sharedMesh = mesh;
+        meshRenderer.sharedMaterial.mainTexture = texture;
+    }
     
 }

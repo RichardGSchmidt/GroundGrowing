@@ -11,7 +11,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class MapGenerator : MonoBehaviour {
     #region public values
     //enum to determain which texture to generate
-    public enum MapType {NoiseMap, ColorMap, Mesh};
+    public enum MapType {NoiseMap, ColorMap, Mesh, Planet};
     public enum RenderType {FlatMap, Sphere };
     [HideInInspector]
     public GameObject mapCanvas;
@@ -86,6 +86,17 @@ public class MapGenerator : MonoBehaviour {
         {
             baseModule = new Clamp(0, 1, baseModule);
         }
+
+        if (mapType == MapType.Planet)
+        {
+            Mesh newMesh = SphereMagic.CreatePlanet(6, 100, baseModule, heightMultiplier);
+            noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
+            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
+            display.DrawMesh(newMesh, textures[0]);
+
+
+        }
+
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
 
         //Generates a planar map or spherical map that is either seamless or not based on user input

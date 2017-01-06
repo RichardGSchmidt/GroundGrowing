@@ -1,122 +1,230 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using LibNoise.Unity.Generator;
+using LibNoise.Unity.Operator;
+using LibNoise.Unity;
 
-[RequireComponent(typeof(MeshFilter))]
-public class SphereMagic : MonoBehaviour
+public static class SphereMagic
 {
 
-    public int subdivisions = 0;
-
-    //heightmap will modify radius
-    public float radius = 1f;  //preserve this
-    //radius adjustment fuction that is per x,y,z based on return from libnoise noise values (or heightmap)
-
-    private void Awake()
-    {
-        GetComponent<MeshFilter>().mesh = MagicSphere.Create(subdivisions, radius);
-    }
-}
-
-
-public static class MagicSphere
-{
-    public static Mesh Create (int subdivisions, float radius)
-    {
-        Vector3[] verts =
-        {
-            Vector3.down, Vector3.down, Vector3.down, Vector3.down,
-            Vector3.forward,
+    private static Vector3[] directions = {
             Vector3.left,
             Vector3.back,
             Vector3.right,
-            Vector3.up, Vector3.up, Vector3.up, Vector3.up
+            Vector3.forward
         };
-       
-        int[] triangles =
+
+    public static Mesh CreatePlanet(int subdivisions, float radius, ModuleBase noiseModule, float adjustment)
+    {
+        if (subdivisions < 0)
         {
-            //notice that they count down sequentially in a pattern
-            0, 4, 5,
-            1, 5, 6,
-            2, 6, 7,
-            3, 7, 8,
+            subdivisions = 0;
+            Debug.LogWarning("Octahedron Sphere subdivisions increased to minimum, which is 0.");
+        }
+        else if (subdivisions > 6)
+        {
+            subdivisions = 6;
+            Debug.LogWarning("Octahedron Sphere subdivisions decreased to maximum, which is 6.");
+        }
 
-             9, 5, 4,
-            10, 6, 5,
-            11, 7, 6,
-            12, 8, 7
-        };
+        int resolution = 1 << subdivisions;
+        Vector3[] vertices = new Vector3[(resolution + 1) * (resolution + 1) * 4 - (resolution * 2 - 1) * 3];
+        int[] triangles = new int[(1 << (subdivisions * 2 + 3)) * 3];
+        CreateOctahedron(vertices, triangles, resolution);
 
-        //every time the sphere isn't a unit sphere the radius will adjust
-        //the nosie will likely have to be imbeded in some future variation of this
-        //loop
+        Vector3[] normals = new Vector3[vertices.Length];
+        Normalize(vertices, normals);
 
-        Vector3[] normals = new Vector3[verts.Length];
-        Normalize(verts, normals);
+        Vector2[] uv = new Vector2[vertices.Length];
+        CreateUV(vertices, uv);
 
-        Vector2[] uvs = new Vector2[verts.Length];
-        CreateUV(verts, uvs);
+        double[] heightadjustments = new double[vertices.Length];
+        CreateHeightArray(vertices, heightadjustments, noiseModule);
+        
 
+
+        Vector4[] tangents = new Vector4[vertices.Length];
+        CreateTangents(vertices, tangents);
+        //heightmap adjustment goes here
         if (radius != 1f)
         {
-            for (int i = 0; i < verts.Length; i++)
+            for (int i = 0; i < vertices.Length; i++)
             {
-                verts[i] *= radius;
+                vertices[i] *= radius +  (float)heightadjustments[i]*adjustment;
             }
         }
 
         Mesh mesh = new Mesh();
-        mesh.name  = "MagicSphere";
-        mesh.vertices = verts;
+        mesh.name = "Planet";
+        mesh.vertices = vertices;
         mesh.normals = normals;
-        mesh.uv = uvs;
+        mesh.uv = uv;
+        mesh.tangents = tangents;
         mesh.triangles = triangles;
         return mesh;
     }
 
-    private static void Normalize (Vector3[] vertices, Vector3[] norms)
+    private static void CreateOctahedron(Vector3[] vertices, int[] triangles, int resolution)
     {
-        for (int i = 0; i < vertices.Length; i++)
+        int v = 0, vBottom = 0, t = 0;
+
+        for (int i = 0; i < 4; i++)
         {
-            norms[i] = vertices[i] = vertices[i].normalized;
+            vertices[v++] = Vector3.down;
+        }
+
+        for (int i = 1; i <= resolution; i++)
+        {
+            float progress = (float)i / resolution;
+            Vector3 from, to;
+            vertices[v++] = to = Vector3.Lerp(Vector3.down, Vector3.forward, progress);
+            for (int d = 0; d < 4; d++)
+            {
+                from = to;
+                to = Vector3.Lerp(Vector3.down, directions[d], progress);
+                t = CreateLowerStrip(i, v, vBottom, t, triangles);
+                v = CreateVertexLine(from, to, i, v, vertices);
+                vBottom += i > 1 ? (i - 1) : 1;
+            }
+            vBottom = v - 1 - i * 4;
+        }
+
+        for (int i = resolution - 1; i >= 1; i--)
+        {
+            float progress = (float)i / resolution;
+            Vector3 from, to;
+            vertices[v++] = to = Vector3.Lerp(Vector3.up, Vector3.forward, progress);
+            for (int d = 0; d < 4; d++)
+            {
+                from = to;
+                to = Vector3.Lerp(Vector3.up, directions[d], progress);
+                t = CreateUpperStrip(i, v, vBottom, t, triangles);
+                v = CreateVertexLine(from, to, i, v, vertices);
+                vBottom += i + 1;
+            }
+            vBottom = v - 1 - i * 4;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            triangles[t++] = vBottom;
+            triangles[t++] = v;
+            triangles[t++] = ++vBottom;
+            vertices[v++] = Vector3.up;
         }
     }
 
-    private static void CreateUV(Vector3[] verts, Vector2[]uvs)
+    private static int CreateVertexLine(Vector3 from, Vector3 to, int steps, int v, Vector3[] vertices)
+    {
+        for (int i = 1; i <= steps; i++)
+        {
+            vertices[v++] = Vector3.Lerp(from, to, (float)i / steps);
+        }
+        return v;
+    }
+
+    private static int CreateLowerStrip(int steps, int vTop, int vBottom, int t, int[] triangles)
+    {
+        for (int i = 1; i < steps; i++)
+        {
+            triangles[t++] = vBottom;
+            triangles[t++] = vTop - 1;
+            triangles[t++] = vTop;
+
+            triangles[t++] = vBottom++;
+            triangles[t++] = vTop++;
+            triangles[t++] = vBottom;
+        }
+        triangles[t++] = vBottom;
+        triangles[t++] = vTop - 1;
+        triangles[t++] = vTop;
+        return t;
+    }
+
+    private static int CreateUpperStrip(int steps, int vTop, int vBottom, int t, int[] triangles)
+    {
+        triangles[t++] = vBottom;
+        triangles[t++] = vTop - 1;
+        triangles[t++] = ++vBottom;
+        for (int i = 1; i <= steps; i++)
+        {
+            triangles[t++] = vTop - 1;
+            triangles[t++] = vTop;
+            triangles[t++] = vBottom;
+
+            triangles[t++] = vBottom;
+            triangles[t++] = vTop++;
+            triangles[t++] = ++vBottom;
+        }
+        return t;
+    }
+
+    private static void Normalize(Vector3[] vertices, Vector3[] normals)
+    {
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            normals[i] = vertices[i] = vertices[i].normalized;
+        }
+    }
+
+
+    private static void CreateHeightArray(Vector3[] verts, double[] heightarray, ModuleBase baseModule)
     {
         for (int i = 0; i < verts.Length; i++)
         {
-            float previousX = 1f;
-            
-            Vector3 vert = verts[i];
-            if (vert.x == previousX)
-            {
-                uvs[i - 1].x = 1f;
-            }
-            Vector2 textureCoords;
-            textureCoords.x = Mathf.Atan2(vert.x, vert.z) / (-2f * Mathf.PI);
-            if (textureCoords.x < 0f)
-            {
-                textureCoords.x += 1f;
+            heightarray[i] = baseModule.GetValue(verts[i]);
+        }
+       
+    }
 
-            }
-            
-            Vector2 textCoords;
-
-            textCoords.x = Mathf.Atan2(vert.x, vert.z) / (-2 * Mathf.PI);
-            if (textCoords.x < 0f)
+    private static void CreateUV(Vector3[] vertices, Vector2[] uv)
+    {
+        float previousX = 1f;
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 v = vertices[i];
+            if (v.x == previousX)
             {
-                textCoords.x += 1f;
+                uv[i - 1].x = 1f;
             }
+            previousX = v.x;
+            Vector2 textureCoordinates;
+            textureCoordinates.x = Mathf.Atan2(v.x, v.z) / (-2f * Mathf.PI);
+            if (textureCoordinates.x < 0f)
+            {
+                textureCoordinates.x += 1f;
+            }
+            textureCoordinates.y = Mathf.Asin(v.y) / Mathf.PI + 0.5f;
+            uv[i] = textureCoordinates;
+        }
+        
+        uv[vertices.Length - 4].x = uv[0].x = 0.125f;
+        uv[vertices.Length - 3].x = uv[1].x = 0.375f;
+        uv[vertices.Length - 2].x = uv[2].x = 0.625f;
+        uv[vertices.Length - 1].x = uv[3].x = 0.875f;
+    }
 
-            textCoords.y = Mathf.Asin(vert.y) / Mathf.PI + 0.5f;
-            uvs[i] = textCoords;
+    private static void CreateTangents(Vector3[] vertices, Vector4[] tangents)
+    {
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector3 v = vertices[i];
+            v.y = 0f;
+            v = v.normalized;
+            Vector4 tangent;
+            tangent.x = -v.z;
+            tangent.y = 0f;
+            tangent.z = v.x;
+            tangent.w = -1f;
+            tangents[i] = tangent;
         }
 
-        uvs[verts.Length - 4].x = uvs[0].x = 0.125f;
-        uvs[verts.Length - 3].x = uvs[1].x = 0.375f;
-        uvs[verts.Length - 2].x = uvs[2].x = 0.625f;
-        uvs[verts.Length - 1].x = uvs[3].x = 0.875f;
-
+        tangents[vertices.Length - 4] = tangents[0] = new Vector3(-1f, 0, -1f).normalized;
+        tangents[vertices.Length - 3] = tangents[1] = new Vector3(1f, 0f, -1f).normalized;
+        tangents[vertices.Length - 2] = tangents[2] = new Vector3(1f, 0f, 1f).normalized;
+        tangents[vertices.Length - 1] = tangents[3] = new Vector3(-1f, 0f, 1f).normalized;
+        for (int i = 0; i < 4; i++)
+        {
+            tangents[vertices.Length - 1 - i].w = tangents[i].w = -1f;
+        }
     }
 }
