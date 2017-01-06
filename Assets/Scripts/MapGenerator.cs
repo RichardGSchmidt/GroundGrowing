@@ -12,6 +12,8 @@ public class MapGenerator : MonoBehaviour {
     #region public values
     //enum to determain which texture to generate
     public enum MapType {NoiseMap, ColorMap, Mesh, Planet};
+    [Range(1, 6)]
+    public int PlanetItterations;
     public enum RenderType {FlatMap, Sphere };
     [HideInInspector]
     public GameObject mapCanvas;
@@ -87,24 +89,31 @@ public class MapGenerator : MonoBehaviour {
             baseModule = new Clamp(0, 1, baseModule);
         }
 
+        noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
+
         if (mapType == MapType.Planet)
         {
-            Mesh newMesh = SphereMagic.CreatePlanet(6, 100, baseModule, heightMultiplier);
-            noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
-            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
-            display.DrawMesh(newMesh, textures[0]);
+            int subdivisions = PlanetItterations;
+            int resolution = 1 << subdivisions;
+            int verticies = (resolution + 1) * (resolution + 1) * 4 - (resolution * 2 - 1) * 3;
+
+            Color[] colorMap = new Color[verticies];
+            Mesh newMesh = SphereMagic.CreatePlanet(PlanetItterations, 100, baseModule, heightMultiplier, ref colorMap, regions);
+           
+            //thank you wolfram alpha for this array size
+            textures[1] = new Texture2D(resolution+1, resolution+7);
+            textures[1].SetPixels(colorMap);
+            display.DrawMesh(newMesh, textures[1]);
 
 
         }
 
-        noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
-
         //Generates a planar map or spherical map that is either seamless or not based on user input
-        if (renderType == RenderType.FlatMap)
+        else if (renderType == RenderType.FlatMap)
         {
             noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
         }
-        if (renderType == RenderType.Sphere)
+        else if (renderType == RenderType.Sphere)
         {
             noiseMap.GenerateSpherical(-90, 90, -180, 180);
         }
