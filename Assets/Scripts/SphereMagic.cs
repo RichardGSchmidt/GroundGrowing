@@ -13,7 +13,7 @@ public static class SphereMagic
             Vector3.forward
         };
 
-    public static Mesh CreatePlanet(int subdivisions, float radius, ModuleBase noiseModule, float adjustment, ref Color[] colorMap, TerrainType[] regions)
+    public static Mesh CreatePlanet(int subdivisions, float radius, ModuleBase noiseModule, float adjustment, TerrainType[] regions)
     {
         if (subdivisions < 0)
         {
@@ -39,8 +39,6 @@ public static class SphereMagic
 
         double[] heightadjustments = new double[vertices.Length];
         CreateHeightArray(vertices, heightadjustments, noiseModule);
-
-        colorMap = DrawColorMap(heightadjustments, colorMap, regions);
 
 
         Vector4[] tangents = new Vector4[vertices.Length];
@@ -121,13 +119,6 @@ public static class SphereMagic
             vertices[v++] = Vector3.Lerp(from, to, (float)i / steps);
         }
         return v;
-    }
-
-    private static Color[] DrawColorMap(double[] heightmap, Color[] colorMap, TerrainType[] regions)
-    {
-
-        return colorMap;
-
     }
 
     private static int CreateLowerStrip(int steps, int vTop, int vBottom, int t, int[] triangles)

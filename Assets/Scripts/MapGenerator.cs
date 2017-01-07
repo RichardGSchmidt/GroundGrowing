@@ -8,7 +8,8 @@ using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-public class MapGenerator : MonoBehaviour {
+public class MapGenerator : MonoBehaviour
+{
     #region public values
     //enum to determain which texture to generate
     public enum MapType {FlatTerrain, Planet};
@@ -52,8 +53,7 @@ public class MapGenerator : MonoBehaviour {
     private ModuleBase baseModule = null;
     #endregion
 
-    #region MapGeneration
-
+    #region Map Generation
     //map generation script
     public void GenerateMap()
     {
@@ -72,11 +72,12 @@ public class MapGenerator : MonoBehaviour {
             seedValue = UnityEngine.Random.Range(0, 10000000);
         #endregion
 
+        #region Noise Function Setup
         for (int i = 0; i < noiseFunctions.Length; i ++)
         {
             noiseFunctions[i].seed = seedValue + i;
         }
-        #region Noise Functions 
+ 
         //generates noise for every noisefunction
         for (int i = 0; i < noiseFunctions.Length; i++)
         {
@@ -109,7 +110,9 @@ public class MapGenerator : MonoBehaviour {
         }
 
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
+        #endregion
 
+        #region Planet Generator
         if (mapType == MapType.Planet)
         {
             noiseMap.GenerateSpherical(-90, 90, -180, 180);
@@ -142,14 +145,15 @@ public class MapGenerator : MonoBehaviour {
             }
             textures[0].Apply();
 
-            Mesh newMesh = SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, ref colorMap, regions);
+            Mesh newMesh = SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, regions);
             
             display.DrawMesh(newMesh, textures[0]);
 
 
         }
-        
+        #endregion
 
+        #region Flat Terrain
         else if (mapType == MapType.FlatTerrain)
         {
             display.TextureRender = FindObjectOfType<Renderer>();
@@ -176,11 +180,11 @@ public class MapGenerator : MonoBehaviour {
 
             display.DrawMesh(FlatMeshGenerator.GenerateTerrainMesh(noiseMap, heightMultiplier, heightAdjuster), textures[0]);
         }
-#endregion
+        #endregion
+
 
     }
-
-    #endregion
+#endregion
 
     #region File Operations
     public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
@@ -224,8 +228,9 @@ public class MapGenerator : MonoBehaviour {
 
 }
 
-#region Serialized Data Sets
-//trying to build this entire program usable for world generation from the editor, encapsulating effects in orderable serialized classes for this reason.
+    #region Serialized Data Sets
+
+#region NoiseFunctions Serializable Container
 [System.Serializable]
 public class NoiseFunctions     
 {
@@ -374,7 +379,10 @@ public class NoiseFunctions
 
     }
 }
+#endregion
 
+#region Noise Presets Serializable Container
+//used to save an .npr file
 [System.Serializable]
 public struct NoisePresets
 {
@@ -396,8 +404,9 @@ public struct NoisePresets
     public bool distance;
 
 }
+#endregion
 
-
+#region Terrain Groups
 //serializable to be accessible in the inspector
 [System.Serializable]
 public struct TerrainType
@@ -406,4 +415,6 @@ public struct TerrainType
     public double height;
     public Color color;
 }
+#endregion
+
 #endregion
