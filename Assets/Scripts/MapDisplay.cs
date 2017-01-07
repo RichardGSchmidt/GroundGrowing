@@ -8,22 +8,6 @@ public class MapDisplay : MonoBehaviour {
     public MeshFilter meshFilter;
     public MeshRenderer meshRenderer;
 
-    public void DrawTextureOnPlane(Texture2D texture)
-    {
-        MapGenerator mapGen = FindObjectOfType<MapGenerator>();
-        TextureRender.sharedMaterial.mainTexture = texture;
-        if (mapGen.renderType == MapGenerator.RenderType.FlatMap)
-        {
-            TextureRender.transform.localScale = new Vector3(texture.width, 1, texture.height);
-        }
-
-        else
-        {
-            TextureRender.transform.localScale = new Vector3(texture.height, texture.height, texture.height);
-        }
-    }
-
-
     public void DrawMesh(MeshData meshData, Texture2D texture)
     {
         meshFilter.sharedMesh = meshData.CreateMesh();
@@ -35,7 +19,7 @@ public class MapDisplay : MonoBehaviour {
     {
         meshFilter.sharedMesh = mesh;
         meshRenderer.sharedMaterial.mainTexture = texture;
-        //TextureRender.transform.localScale = new Vector3(texture.height, texture.width, texture.width);
+
     }
     
 }

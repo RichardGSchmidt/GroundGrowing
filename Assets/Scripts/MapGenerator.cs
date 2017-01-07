@@ -11,11 +11,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class MapGenerator : MonoBehaviour {
     #region public values
     //enum to determain which texture to generate
-    public enum MapType {NoiseMap, ColorMap, Mesh, Planet};
+    public enum MapType {FlatTerrain, Planet};
     [Range(1, 6)]
     public int PlanetItterations;
     public float radius;
-    public enum RenderType {FlatMap, Sphere };
+    public enum RenderType {Greyscale, Color };
     [HideInInspector]
     public GameObject mapCanvas;
     
@@ -34,12 +34,13 @@ public class MapGenerator : MonoBehaviour {
     public AnimationCurve heightAdjuster;
 
     public string seed;
-    public bool useRandomSeed = true;
-    //public bool autoUpdate = false;
-    //hidden because this is generated via editor scripting
+    public bool useRandomSeed;
+    public TerrainType[] regions;
     [HideInInspector]
-    public int seedValue = 0;
+    public int seedValue;
     #endregion
+
+    #region Private / Hidden values
 
     private Noise2D noiseMap = null;
     [HideInInspector]
@@ -47,43 +48,60 @@ public class MapGenerator : MonoBehaviour {
     //hidden in inspector because of custom inspector implementation
     [HideInInspector]
     public NoiseFunctions[] noiseFunctions;
-    public TerrainType[] regions;
+
     private ModuleBase baseModule = null;
+    #endregion
+
     #region MapGeneration
 
     //map generation script
     public void GenerateMap()
     {
+        #region variables and setup
         //this is the base noise module that will be manipulated 
         baseModule = null;
         //this is the noisemap that will be generated
         noiseMap = null;
         MapDisplay display = FindObjectOfType<MapDisplay>();
 
-        //generates meshes for every noisefunction
+        if (!useRandomSeed)
+        {
+            seedValue = seed.GetHashCode();
+        }
+        else
+            seedValue = UnityEngine.Random.Range(0, 10000000);
+        #endregion
 
+        for (int i = 0; i < noiseFunctions.Length; i ++)
+        {
+            noiseFunctions[i].seed = seedValue + i;
+        }
+        #region Noise Functions 
+        //generates noise for every noisefunction
         for (int i = 0; i < noiseFunctions.Length; i++)
         {
             if (noiseFunctions[i].enabled)
             {
-                noiseFunctions[i].FormMesh();
+                noiseFunctions[i].MakeNoise();
             }
         }
         
         //manipulates the base module based on the noise modules
         for (int i = 0; i < noiseFunctions.Length; i++)
         {
-            //for first valid noise pattern
+            //for first valid noise pattern simply pass the noise function
             if (baseModule == null&&noiseFunctions[i].enabled)
             {
                 baseModule = noiseFunctions[i].moduleBase;
             }
-            //all others after the first modify the previous iteration of the baseModule
+
+            //all others valid add to the previous iteration of the baseModule
             else if(noiseFunctions[i].enabled)
             {
                 baseModule = new Add(baseModule, noiseFunctions[i].moduleBase);
             }
         }
+
         //clamps the module to between 1 and 0
         if (clamped)
         {
@@ -94,27 +112,21 @@ public class MapGenerator : MonoBehaviour {
 
         if (mapType == MapType.Planet)
         {
-            int subdivisions = PlanetItterations;
-            int resolution = 1 << subdivisions;
-            int verticies = (resolution + 1) * (resolution + 1) * 4 - (resolution * 2 - 1) * 3;
-
             noiseMap.GenerateSpherical(-90, 90, -180, 180);
-            //noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
-
             Color[] colorMap = new Color[noiseMap.Width * noiseMap.Height];
-            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
-
-            if (renderType == RenderType.Sphere)
+            textures[0] = new Texture2D(noiseMap.Width, noiseMap.Height);
+            if (renderType == RenderType.Greyscale)
+            {
+                textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
+            }
+            else
             {
 
                 for (int y = 0; y < noiseMap.Height; y++)
                 {
                     for (int x = 0; x < noiseMap.Width; x++)
                     {
-                        //float valueAtPoint = 0;
-                        //float currentHeight = valueAtPoint;
                         float currentHeight = noiseMap[x, y];
-                        //for given pixel
                         for (int i = 0; i < regions.Length; i++)
                         {
                             if (currentHeight <= regions[i].height)
@@ -136,55 +148,9 @@ public class MapGenerator : MonoBehaviour {
 
 
         }
-
-        //Generates a planar map or spherical map that is either seamless or not based on user input
-        else if (renderType == RenderType.FlatMap)
-        {
-            noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
-        }
-        else if (renderType == RenderType.Sphere)
-        {
-            noiseMap.GenerateSpherical(-90, 90, -180, 180);
-        }
-
         
 
-        //generates a raw noise type based on the public enum
-        if (mapType == MapType.NoiseMap)
-        {
-            GenerateMapCanvas();
-            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
-            textures[0].Apply();
-            display.DrawTextureOnPlane(textures[0]);
-        }
-
-        //generates a color map based on the public enum
-        else if (mapType == MapType.ColorMap)
-        {
-            GenerateMapCanvas();
-            Color[] colorMap = new Color[mapWidth * mapHeight];
-            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
-            for (int y = 0; y < mapHeight; y++)
-            {
-                for (int x = 0; x < mapWidth; x++)
-                {
-                    float currentHeight = noiseMap[x, y];
-                    for (int i = 0; i < regions.Length; i++)
-                    {
-                        if (currentHeight <= regions[i].height)
-                        {
-                            colorMap[y * mapWidth + x] = regions[i].color;
-                            break;
-                        }
-                    }
-                }
-            }
-            textures[0].SetPixels(colorMap);
-            textures[0].Apply();
-            display.DrawTextureOnPlane(textures[0]);
-        }
-
-        else if (mapType == MapType.Mesh)
+        else if (mapType == MapType.FlatTerrain)
         {
             display.TextureRender = FindObjectOfType<Renderer>();
             textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
@@ -210,8 +176,8 @@ public class MapGenerator : MonoBehaviour {
 
             display.DrawMesh(FlatMeshGenerator.GenerateTerrainMesh(noiseMap, heightMultiplier, heightAdjuster), textures[0]);
         }
-        
-        
+#endregion
+
     }
 
     #endregion
@@ -256,29 +222,8 @@ public class MapGenerator : MonoBehaviour {
 
     #endregion
 
-
-    private void GenerateMapCanvas()
-    {
-        //destroys even in editmode
-        DestroyImmediate(mapCanvas);
-        //this will be replaced with the procedurally generated sphere in the other scene
-        if (renderType == RenderType.Sphere) 
-        {
-            mapCanvas = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            MapDisplay display = FindObjectOfType<MapDisplay>();
-            display.TextureRender = mapCanvas.GetComponent<Renderer>();
-            mapCanvas.transform.position = new Vector3(0, 0, 0);
-        }
-        else
-        {
-            mapCanvas = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            MapDisplay display = FindObjectOfType<MapDisplay>();
-            display.TextureRender = mapCanvas.GetComponent<Renderer>();
-            mapCanvas.transform.position = new Vector3(0, 0, 0);
-        }
-    }
-
 }
+
 #region Serialized Data Sets
 //trying to build this entire program usable for world generation from the editor, encapsulating effects in orderable serialized classes for this reason.
 [System.Serializable]
@@ -290,10 +235,7 @@ public class NoiseFunctions
     public NoiseType type = NoiseType.Perlin;
     public bool enabled = false;
     public ModuleBase moduleBase;
-    [HideInInspector]
-    public int height;
-    [HideInInspector]
-    public int width;
+    
  
     [Range(0f,20f)]
     public double frequency;
@@ -420,7 +362,7 @@ public class NoiseFunctions
     #endregion
 
     //generates the mesh based on selected noise type
-    public void FormMesh()
+    public void MakeNoise()
     {
 
         if (type == NoiseType.Billow) { moduleBase = new Billow(frequency, lacunarity, persistence, octaves, seed, qualityMode);}

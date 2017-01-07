@@ -11,13 +11,15 @@ public class MapGenEditor : Editor {
     public bool showNoiseFunctions;
     public bool showTextures;
     private string fileName;
+    public NoiseFunctions[] oldNoises;
 
     public override void OnInspectorGUI()
     {
-
+        
         #region Standard Calls
          
         MapGenerator mapGen = (MapGenerator)target;
+        
         if (DrawDefaultInspector())
         {
             if (mapGen.autoUpdate)
@@ -77,29 +79,14 @@ public class MapGenEditor : Editor {
         #endregion
 #endregion
 
-        #region Noise Function Maintenence
-        //used to adjust values in noise functions for editor use
+        #region 
         for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
             {
                 if (showNoiseFunctions)
                 {
                     GetInspectorElements(mapGen.noiseFunctions[i], i, mapGen);
                 }
-                //transfers height / width
-                mapGen.noiseFunctions[i].height = mapGen.mapHeight;
-                mapGen.noiseFunctions[i].width = mapGen.mapWidth;
 
-                //seed distribution, lots of i's scattered for fun
-                if (!mapGen.useRandomSeed)
-                {
-                    mapGen.seedValue = mapGen.seed.GetHashCode() * i;
-                }
-
-                else
-                {
-                    mapGen.seedValue = Random.Range(0, 10000000);
-                }
-                mapGen.noiseFunctions[i].seed = mapGen.seedValue + i;
             }
 #endregion
 
@@ -113,13 +100,8 @@ public class MapGenEditor : Editor {
    
     public void GetInspectorElements(NoiseFunctions noiseFunc, int index, MapGenerator generator)
     {
-        
-            if (generator.autoUpdate)
-            {
-                //generator.GenerateMap();
-            }
-     
-
+        //to autoupdate if this panel has been changed
+        EditorGUI.BeginChangeCheck();
 
         #region Perlin Function UI
         if (noiseFunc.type == NoiseFunctions.NoiseType.Perlin)
@@ -297,6 +279,12 @@ public class MapGenEditor : Editor {
         }
 
         #endregion
+
+        //to autoupdate if this inspector element has changed
+        if (generator.autoUpdate&&EditorGUI.EndChangeCheck())
+        {
+            generator.GenerateMap();
+        }
 
         
 
