@@ -111,7 +111,10 @@ public class MapGenerator : MonoBehaviour {
                 {
                     for (int x = 0; x < noiseMap.Width; x++)
                     {
+                        //float valueAtPoint = 0;
+                        //float currentHeight = valueAtPoint;
                         float currentHeight = noiseMap[x, y];
+                        //for given pixel
                         for (int i = 0; i < regions.Length; i++)
                         {
                             if (currentHeight <= regions[i].height)
