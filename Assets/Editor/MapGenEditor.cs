@@ -44,6 +44,7 @@ public class MapGenEditor : Editor {
         showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
         if (showNoiseFunctions)
         {
+            
             if (GUILayout.Button("Add New Noise Function"))
             {
                 NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length + 1];
@@ -82,7 +83,7 @@ public class MapGenEditor : Editor {
             {
                 if (showNoiseFunctions)
                 {
-                    GetInspectorElements(mapGen.noiseFunctions[i], i);
+                    GetInspectorElements(mapGen.noiseFunctions[i], i, mapGen);
                 }
                 //transfers height / width
                 mapGen.noiseFunctions[i].height = mapGen.mapHeight;
@@ -102,11 +103,7 @@ public class MapGenEditor : Editor {
             }
 #endregion
 
-        //   autoupdate function, so far it's really slow, removed temporarily
-        //   if (mapGen.autoUpdate)
-        //   {
-        //       mapGen.GenerateMap();
-        //   }
+        
 
         if (GUILayout.Button("Generate"))
             {
@@ -114,8 +111,16 @@ public class MapGenEditor : Editor {
             }
     }
    
-    public void GetInspectorElements(NoiseFunctions noiseFunc, int index)
+    public void GetInspectorElements(NoiseFunctions noiseFunc, int index, MapGenerator generator)
     {
+        
+            if (generator.autoUpdate)
+            {
+                //generator.GenerateMap();
+            }
+     
+
+
         #region Perlin Function UI
         if (noiseFunc.type == NoiseFunctions.NoiseType.Perlin)
         {

@@ -35,6 +35,7 @@ public class MapDisplay : MonoBehaviour {
     {
         meshFilter.sharedMesh = mesh;
         meshRenderer.sharedMaterial.mainTexture = texture;
+        //TextureRender.transform.localScale = new Vector3(texture.height, texture.width, texture.width);
     }
     
 }

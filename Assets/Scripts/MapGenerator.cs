@@ -14,6 +14,7 @@ public class MapGenerator : MonoBehaviour {
     public enum MapType {NoiseMap, ColorMap, Mesh, Planet};
     [Range(1, 6)]
     public int PlanetItterations;
+    public float radius;
     public enum RenderType {FlatMap, Sphere };
     [HideInInspector]
     public GameObject mapCanvas;
@@ -97,13 +98,38 @@ public class MapGenerator : MonoBehaviour {
             int resolution = 1 << subdivisions;
             int verticies = (resolution + 1) * (resolution + 1) * 4 - (resolution * 2 - 1) * 3;
 
-            Color[] colorMap = new Color[verticies];
-            Mesh newMesh = SphereMagic.CreatePlanet(PlanetItterations, 100, baseModule, heightMultiplier, ref colorMap, regions);
-           
-            //thank you wolfram alpha for this array size
-            textures[1] = new Texture2D(resolution+1, resolution+7);
-            textures[1].SetPixels(colorMap);
-            display.DrawMesh(newMesh, textures[1]);
+            noiseMap.GenerateSpherical(-90, 90, -180, 180);
+            //noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
+
+            Color[] colorMap = new Color[noiseMap.Width * noiseMap.Height];
+            textures[0] = noiseMap.GetTexture(LibNoise.Unity.Gradient.Grayscale);
+
+            if (renderType == RenderType.Sphere)
+            {
+
+                for (int y = 0; y < noiseMap.Height; y++)
+                {
+                    for (int x = 0; x < noiseMap.Width; x++)
+                    {
+                        float currentHeight = noiseMap[x, y];
+                        for (int i = 0; i < regions.Length; i++)
+                        {
+                            if (currentHeight <= regions[i].height)
+                            {
+                                colorMap[y * noiseMap.Width + x] = regions[i].color;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                textures[0].SetPixels(colorMap);
+            }
+            textures[0].Apply();
+
+            Mesh newMesh = SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, ref colorMap, regions);
+            
+            display.DrawMesh(newMesh, textures[0]);
 
 
         }
@@ -187,6 +213,7 @@ public class MapGenerator : MonoBehaviour {
 
     #endregion
 
+    #region File Operations
     public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
     {
         NoisePresets[] presetsToSave = new NoisePresets[savedPresets.Length];
@@ -223,6 +250,9 @@ public class MapGenerator : MonoBehaviour {
             file.Close();
         }
     }
+
+    #endregion
+
 
     private void GenerateMapCanvas()
     {

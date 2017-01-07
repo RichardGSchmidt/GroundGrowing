@@ -45,14 +45,13 @@ public static class SphereMagic
 
         Vector4[] tangents = new Vector4[vertices.Length];
         CreateTangents(vertices, tangents);
-        //heightmap adjustment goes here
-        if (radius != 1f)
+        //heightmap adjustment here
+           
+        for (int i = 0; i < vertices.Length; i++)
         {
-            for (int i = 0; i < vertices.Length; i++)
-            {
-                vertices[i] *= radius +  (float)heightadjustments[i]*adjustment;
-            }
+            vertices[i] *= radius +  (float)heightadjustments[i]*adjustment * radius;
         }
+        
 
         Mesh mesh = new Mesh();
         mesh.name = "Planet";
@@ -126,16 +125,6 @@ public static class SphereMagic
     private static Color[] DrawColorMap(double[] heightmap, Color[] colorMap, TerrainType[] regions)
     {
 
-        for (int i = 0; i < heightmap.Length; i++)
-        {
-            for (int j = 0; j < regions.Length; j++)
-            {
-                if (heightmap[i] <= regions[j].height)
-                {
-                    colorMap[i] = regions[j].color;
-                }
-            }
-        }
         return colorMap;
 
     }
