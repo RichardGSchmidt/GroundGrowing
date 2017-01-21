@@ -57,7 +57,6 @@ public static class SphereMagic
         mesh.normals = normals;
         mesh.uv = uv;
         mesh.tangents = tangents;
-        mesh.RecalculateNormals();
         mesh.triangles = triangles;
         return mesh;
     }
