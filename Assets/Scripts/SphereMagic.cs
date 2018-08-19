@@ -1,12 +1,7 @@
 ﻿using UnityEngine;
-using LibNoise.Generator;
-using LibNoise.Operator;
-using LibNoise;
-
-/// <summary>
-/// This is the class to use for generating an entire planet that
-/// needs to be rotated etc.
-/// </summary>
+using LibNoise.Unity.Generator;
+using LibNoise.Unity.Operator;
+using LibNoise.Unity;
 
 public static class SphereMagic
 {
@@ -23,12 +18,12 @@ public static class SphereMagic
         if (subdivisions < 0)
         {
             subdivisions = 0;
-            Debug.LogWarning("LOD set to 0.");
+            Debug.LogWarning("Octahedron Sphere subdivisions increased to minimum, which is 0.");
         }
         else if (subdivisions > 6)
         {
             subdivisions = 6;
-            Debug.LogWarning("LOD set to 6.");
+            Debug.LogWarning("Octahedron Sphere subdivisions decreased to maximum, which is 6.");
         }
 
         int resolution = 1 << subdivisions;
@@ -124,7 +119,7 @@ public static class SphereMagic
         }
         return v;
     }
-    
+
     private static int CreateLowerStrip(int steps, int vTop, int vBottom, int t, int[] triangles)
     {
         for (int i = 1; i < steps; i++)
