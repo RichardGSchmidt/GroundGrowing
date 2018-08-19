@@ -28,7 +28,7 @@ TODO:
 
 *Multicore rendering off switch.
 
-*Fix / improve multithreading implementation.
+*Fix / improve multithreading implementation. <DONE RGS 8/19/18>
 
 *Better fuctions to run the generator instantiated with 
 variety of presets settings or files.
@@ -44,7 +44,7 @@ method to cause thread halts earlier after changes.
 *Terrain group serialization storage and file IO.  
 
 
-*Auto sea Level.
+*Ocean toggle.  <DONE RGS 8/19/18>
 
 *Custom noise inserts(e.g. gas giants, ice caps, stars.).
 

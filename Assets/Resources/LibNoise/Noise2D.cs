@@ -445,6 +445,44 @@ namespace LibNoise
             }
         }
 
+        public void GenerateSpherical(double south, double north, double west, double east, ref int timestamp, ref int check)
+        {
+            if (east <= west || north <= south)
+            {
+                throw new ArgumentException("Invalid east/west or north/south combination");
+            }
+            if (_generator == null)
+            {
+                throw new ArgumentNullException("Generator is null");
+            }
+            var loe = east - west;
+            var lae = north - south;
+            var xd = loe / ((double)_width - _ucBorder);
+            var yd = lae / ((double)_height - _ucBorder);
+            var clo = west;
+            for (var x = 0; x < _ucWidth; x++)
+            {
+                if (timestamp != check)
+                {
+                    Debug.Log("downrange timestamp caught, stopping");
+                    return;
+                };
+                var cla = south;
+                for (var y = 0; y < _ucHeight; y++)
+                {
+                    _ucData[x, y] = (float)GenerateSpherical(cla, clo);
+                    if (x >= _ucBorder && y >= _ucBorder && x < _width + _ucBorder &&
+                        y < _height + _ucBorder)
+                    {
+                        _data[x - _ucBorder, y - _ucBorder] = (float)GenerateSpherical(cla, clo);
+                        // Cropped data
+                    }
+                    cla += yd;
+                }
+                clo += xd;
+            }
+        }
+
         /// <summary>
         /// Creates a grayscale texture map for the current content of the noise map.
         /// </summary>

@@ -50,7 +50,7 @@ public class MapGenerator : MonoBehaviour
     #region Private / Hidden values
 
 
-    private DateTime latestTimeProcessRequested;
+    private int latestTimeProcessRequested;
     private Noise2D noiseMap = null;
     [HideInInspector]
     public Texture2D mapTexture;
@@ -203,7 +203,7 @@ public class MapGenerator : MonoBehaviour
             HaltThreads();
         }
 
-        latestTimeProcessRequested = DateTime.Now;
+        latestTimeProcessRequested = DateTime.Now.GetHashCode();
         drawInProgress = true;
         stop = false;
         StartCoroutine(TextureRefiner());
@@ -331,7 +331,7 @@ public class MapGenerator : MonoBehaviour
             Noise2D placeHolder;
             Debug.Log("drawing map " + count);
             placeHolder = new Noise2D(mapWidth / i, mapHeight / i, baseModule);
-            placeHolder.GenerateSpherical(-90, 90, -180, 180);
+            placeHolder.GenerateSpherical(-90, 90, -180, 180, ref latestTimeProcessRequested, ref processTimestamp);
             Debug.Log("Map " + count + " drawn");
             updatedMap = placeHolder;
             noiseMapUpdateAvailable = true;
