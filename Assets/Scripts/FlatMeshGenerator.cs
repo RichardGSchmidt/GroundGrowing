@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using LibNoise;
-using LibNoise.Unity;
-using LibNoise.Unity.Generator;
-
+using LibNoise.Generator;
+/// <summary>
+/// Eventual goal with this class is to be able to construct it
+/// such that it will render a panel of the planet
+/// at differing resolutions to generate zoomed in LOD maps
+/// for gameplay all the way down to the ground.
+/// </summary>
 public static class FlatMeshGenerator {
 
 //function to take a noisemap and adjust a flat terrainmesh according to that map.
@@ -13,7 +17,6 @@ public static class FlatMeshGenerator {
 
         float topLeftX = (noisemap.Width - 1) / 2f;
         float topLeftZ = (noisemap.Height - 1) / 2f;
-        //noisemap.GeneratePlanar();
         MeshData meshData = new MeshData(noisemap.Width, noisemap.Height);
         int vertexIndex = 0;
 
@@ -21,7 +24,7 @@ public static class FlatMeshGenerator {
         {
             for (int x = 0; x < noisemap.Width; x++)
             {
-                meshData.vertices[vertexIndex] = new Vector3(x - topLeftX, adjustment.Evaluate(noisemap[x, y]) * multiplier, topLeftZ - y);
+                meshData.vertices[vertexIndex] = new Vector3(x - topLeftX, adjustment.Evaluate(noisemap[x, y]) * multiplier*1000, topLeftZ - y);
                 meshData.uvs[vertexIndex] = new Vector2(x / (float)noisemap.Width, y / (float)noisemap.Height);
                 if (x < noisemap.Width - 1 && y < noisemap.Height - 1)
                 {

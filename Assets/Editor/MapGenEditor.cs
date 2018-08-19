@@ -13,6 +13,20 @@ public class MapGenEditor : Editor {
     private string fileName;
     public NoiseFunctions[] oldNoises;
 
+    void OnEnable()
+    {
+        EditorApplication.update += Update;
+    }
+
+    static void Update()
+    {
+        MapGenerator mapGen = FindObjectOfType<MapGenerator>();
+        if (mapGen.noiseMapUpdateAvailable)
+        {
+            mapGen.UpdateSphereMap();
+        }
+    }
+
     public override void OnInspectorGUI()
     {
         
@@ -115,7 +129,7 @@ public class MapGenEditor : Editor {
             noiseFunc.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)noiseFunc.lacunarity, 2.0000000f, 2.5000000f);
             noiseFunc.persistence = (double)EditorGUILayout.Slider("Persistence", (float)noiseFunc.persistence, 0f, 1f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
-            noiseFunc.qualityMode = (LibNoise.Unity.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
+            noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
             if (GUILayout.Button("Remove"))
             {
                 MapGenerator mapGen = (MapGenerator)target;
@@ -151,7 +165,7 @@ public class MapGenEditor : Editor {
             noiseFunc.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)noiseFunc.lacunarity, 1.5000000f, 3.5000000f);
             noiseFunc.persistence = (double)EditorGUILayout.Slider("Persistence", (float)noiseFunc.persistence, 0f, 1f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
-            noiseFunc.qualityMode = (LibNoise.Unity.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
+            noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
             if (GUILayout.Button("Remove"))
             {
                 MapGenerator mapGen = (MapGenerator)target;
@@ -210,19 +224,19 @@ public class MapGenEditor : Editor {
         }
 #endregion
 
-        #region Rigged Multifractal UI
-        else if (noiseFunc.type == NoiseFunctions.NoiseType.RiggedMultifractal)
+        #region Ridged Multifractal UI
+        else if (noiseFunc.type == NoiseFunctions.NoiseType.RidgedMultifractal)
         {
 
             EditorGUILayout.Space();
-            string name = "Rigged Multifractal";
+            string name = "Ridged Multifractal";
             EditorGUILayout.LabelField(name);
             noiseFunc.type = (NoiseFunctions.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             noiseFunc.enabled = EditorGUILayout.ToggleLeft("Enabled", noiseFunc.enabled);
             noiseFunc.frequency = (double)EditorGUILayout.Slider("Frequency", (float)noiseFunc.frequency, 0f, 20f);
             noiseFunc.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)noiseFunc.lacunarity, 1.5000000f, 3.5000000f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
-            noiseFunc.qualityMode = (LibNoise.Unity.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
+            noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
             if (GUILayout.Button("Remove"))
             {
                 MapGenerator mapGen = (MapGenerator)target;
