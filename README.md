@@ -3,6 +3,9 @@ Open Source Unity3d Planetary Terrain Generator
 
 This project is not completed, but is still usable.
 
+It uses the #region style organization,
+so the code looks best in Visual Studio.
+
 Most interfaces are on the Editor panel in Unity,
 but I recommend going through the code regardless
 for now if you are seriously going to use it.
