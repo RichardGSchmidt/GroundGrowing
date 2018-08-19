@@ -23,4 +23,6 @@ to avoid the hiccup on texture updates.
 Terrain group serialization storage and file IO.  
 Partial planet renderer that scales 
 (the flat mesh generator which is currently broken).
-Autosea Level.  And a sun generator (really easy, I'm just slacking).
+Autosea Level. Ice cap noise inserts.  Rivers.
+Terrain group selection mapping.
+And a sun generator (really easy, I'm just slacking).
