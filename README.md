@@ -5,7 +5,7 @@ This project is not completed, but is still usable.
 This is also the working copy as well, so things
 may break / change without notice as I attempt to
 improve it.  There will also be notes to myself 
-all throughout the code.
+all throughout the code and documentation.
 
 It currently uses the #region style organization,
 so the code looks best in Visual Studio; where
