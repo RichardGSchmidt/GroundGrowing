@@ -43,9 +43,6 @@ method to cause thread halts earlier after changes.
 
 *Terrain group serialization storage and file IO.  
 
-
-*Auto sea Level.
-
 *Custom noise inserts(e.g. gas giants, ice caps, stars.).
 
 *Rivers city / glow overlays.
