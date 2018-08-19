@@ -18,7 +18,9 @@ C# implementation of the LibNoise Library.
 
 Things that need to be added:
 
+Conversion from 2d arrays to 1d arrays for textures
+to avoid the hiccup on texture updates.
 Terrain group serialization storage and file IO.  
 Partial planet renderer that scales 
 (the flat mesh generator which is currently broken).
-Autosea Level.
+Autosea Level.  And a sun generator (really easy, I'm just slacking).
