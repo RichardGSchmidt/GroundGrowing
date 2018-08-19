@@ -12,6 +12,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class MapGenerator : MonoBehaviour
 {
     #region public values
+    //MFU The variables to be setup in custom constructors calls
+   
     //enum to determine which texture to generate
     public enum MapType {FlatTerrain, Planet};
     [Range(1, 6)]
@@ -85,6 +87,12 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     public void GenerateMap()
     {
+        //MFU Need to work on the hiearchy / code reduction
+        //in this method in particular.
+
+        //MFU After reorganization add easier initial generation 
+        //calls with different types of arguments.
+        
         #region variables and setup
         //autoUpdate saftey catch disabled after implementing multithreading, may be added again if this is pulled back out.
         //if (autoUpdate && (mapWidth > 400 || mapHeight > 200))
@@ -106,6 +114,8 @@ public class MapGenerator : MonoBehaviour
 
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
+        //this object needs better selection handling to
+        //account for multiple  object types
         waterMesh = GameObject.FindGameObjectWithTag("water");
 
         if (!useRandomSeed)
@@ -158,6 +168,7 @@ public class MapGenerator : MonoBehaviour
             mapTexture = GetMapTexture(renderType, noiseMap);
             if (waterMesh != null)
             {
+                //MFU better Sea Level Autoupdate / switch
                 waterMesh.transform.localScale = 2 * (new Vector3(radius + seaLevelOffset, radius + seaLevelOffset, radius + seaLevelOffset));
             }
             display.DrawMesh(SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, regions), mapTexture);
@@ -203,6 +214,8 @@ public class MapGenerator : MonoBehaviour
     #endregion
 
     #region Map Texture Generator
+
+    //MFU  Need to make the 2d arrays here 1d arrays to cure the hiccups.
     private Texture2D GetMapTexture(RenderType typeIn, Noise2D noiseIn)
     {
         Texture2D mapReturned;
@@ -246,7 +259,7 @@ public class MapGenerator : MonoBehaviour
         return mapReturned;
     }
     #endregion
-
+    //MFU Need to implement a non multicore rendering call as well
     #region Multithreading Handlers
     //threading handler function
     IEnumerator TextureRefiner()
@@ -284,6 +297,9 @@ public class MapGenerator : MonoBehaviour
     //make this itterative to approach mapwidth
     void ProcessTextures()
     {
+           //MFU This needs to be moved downstream somehow
+           //I may need to write a seperate texture draw process
+           //Specficially for multicore rendering.
         var processTimestamp =  latestTimeProcessRequested;
 
         int count=0;
@@ -344,6 +360,8 @@ public class MapGenerator : MonoBehaviour
     #endregion
 
     #region File IO
+    //MFU Add Terrain group IO
+
     public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
     {
         NoisePresets[] presetsToSave = new NoisePresets[savedPresets.Length];
@@ -557,6 +575,7 @@ public struct NoisePresets
 
 }
 #endregion
+
 
 #region Terrain Groups
 //serializable to be accessible in the inspector
