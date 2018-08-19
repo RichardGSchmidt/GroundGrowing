@@ -28,3 +28,8 @@ Ice cap noise inserts.
 Rivers.
 Terrain group selection mapping.
 And a sun generator (really easy, I'm just slacking).
+
+
+If you do happen to use this in a project, please let me know and credit me.
+Have fun!
+-Richard Schmidt
