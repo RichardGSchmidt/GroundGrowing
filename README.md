@@ -24,7 +24,7 @@ TODO:
 
 
 
-*Code reduction / hiearchy speration.
+*Code reduction / hiearchy seperation.
 
 *Multicore rendering off switch.
 
