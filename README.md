@@ -55,5 +55,5 @@ ground / close up scenes (the flat mesh generator
 which is currently broken).
 
 If there is anything else not implemented or on the TODO list that you want to suggest please let me know.  Also feel free to ask me any questions if you have them.  I'm easiest to reach via email:  [Richard.G.Schmidt.Jr@gmail.com]. If you do happen to use this in a project, please let me know and credit me.
-Have fun!
+Thanks and have fun!
 -Richard Schmidt

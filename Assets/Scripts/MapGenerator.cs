@@ -91,7 +91,7 @@ public class MapGenerator : MonoBehaviour
         //in this method in particular.
 
         //MFU After reorganization add easier initial generation 
-        //calls with different types of arguments.
+        //calls with different types of arguments (files / settings mixtures).
         
         #region variables and setup
         //autoUpdate saftey catch disabled after implementing multithreading, may be added again if this is pulled back out.
