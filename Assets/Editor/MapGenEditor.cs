@@ -87,6 +87,7 @@ public class MapGenEditor : Editor {
             {
                 fileName = EditorUtility.OpenFilePanel("Load a noise File ", null, "npr");
                 mapGen.LoadPresets(fileName);
+                mapGen.GenerateMap();
             }
             
         }

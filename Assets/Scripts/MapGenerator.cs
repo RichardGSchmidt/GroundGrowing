@@ -27,6 +27,7 @@ public class MapGenerator : MonoBehaviour
     //bool to select between seamless and non seamless map generation for 2d maps
     //It should be noted that seamless generation takes much more time
     public bool seamless = false;
+    public bool oceans = true;
     public bool clamped = true;
     //inspector varibles
     public MapType mapType;
@@ -43,13 +44,13 @@ public class MapGenerator : MonoBehaviour
     public TerrainType[] regions;
     [HideInInspector]
     public int seedValue;
+    public GameObject waterMesh;
     #endregion
 
     #region Private / Hidden values
 
 
     private DateTime latestTimeProcessRequested;
-    private GameObject waterMesh;
     private Noise2D noiseMap = null;
     [HideInInspector]
     public Texture2D mapTexture;
@@ -116,7 +117,6 @@ public class MapGenerator : MonoBehaviour
         MapDisplay display = FindObjectOfType<MapDisplay>();
         //this object needs better selection handling to
         //account for multiple  object types
-        waterMesh = GameObject.FindGameObjectWithTag("water");
 
         if (!useRandomSeed)
         {
@@ -166,10 +166,19 @@ public class MapGenerator : MonoBehaviour
             noiseMap = new Noise2D(100, 100, baseModule);
             noiseMap.GenerateSpherical(-90, 90, -180, 180);
             mapTexture = GetMapTexture(renderType, noiseMap);
+            if ((oceans)&&(!waterMesh.activeSelf))
+            {
+                waterMesh.SetActive(true);
+            }
             if (waterMesh != null)
             {
                 //MFU better Sea Level Autoupdate / switch
                 waterMesh.transform.localScale = 2 * (new Vector3(radius + seaLevelOffset, radius + seaLevelOffset, radius + seaLevelOffset));
+            
+                if (!oceans)
+                {
+                    waterMesh.SetActive(false);
+                }
             }
             display.DrawMesh(SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, regions), mapTexture);
         }
