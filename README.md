@@ -28,6 +28,8 @@ TODO:
 
 *Multicore rendering off switch.
 
+*Fix / improve multithreading implementation.
+
 *Better fuctions to run the generator instantiated with 
 variety of presets settings or files.
 
@@ -42,7 +44,7 @@ method to cause thread halts earlier after changes.
 *Terrain group serialization storage and file IO.  
 
 
-*Autosea Level.
+*Auto sea Level.
 
 *Custom noise inserts(e.g. gas giants, ice caps, stars.).
 
@@ -53,6 +55,7 @@ method to cause thread halts earlier after changes.
 *Partial planet renderer that scales for rendering
 ground / close up scenes (the flat mesh generator 
 which is currently broken).
+
 
 If there is anything else not implemented or on the TODO list that you want to suggest please let me know.  Also feel free to ask me any questions if you have them.  I'm easiest to reach via email:  [Richard.G.Schmidt.Jr@gmail.com]. If you do happen to use this in a project, please let me know and credit me.
 Thanks and have fun!
