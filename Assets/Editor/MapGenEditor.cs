@@ -54,7 +54,7 @@ public class MapGenEditor : Editor {
             fileName = EditorUtility.SaveFilePanel("Save a Copy of Texture", Application.dataPath, "mapimage", "png");
             mapGen.SaveImage(fileName);
         }
-#endregion
+        #endregion
 
         #region Noise Functions Foldout
         showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");

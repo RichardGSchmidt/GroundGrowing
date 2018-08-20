@@ -394,7 +394,21 @@ public class MapGenerator : MonoBehaviour
         bf.Serialize(file, presetsToSave);
         file.Close();
     }
-    
+
+    public void SaveTerrain(TerrainType[] savedPresets, string destpath)//saves the map to a given string location.
+    {
+        TerrainPresets[] presetsToSave = new TerrainPresets[savedPresets.Length];
+        for (int i = 0; i < savedPresets.Length; i++)
+        {
+            presetsToSave[i] = savedPresets[i].getTPR();
+        }
+
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Create(destpath);
+        bf.Serialize(file, presetsToSave);
+        file.Close();
+    }
+
     public void SaveImage(string filePath)
     {
         System.IO.File.WriteAllBytes(filePath, mapTexture.EncodeToPNG());
@@ -414,6 +428,25 @@ public class MapGenerator : MonoBehaviour
             }
             noiseFunctions = new NoiseFunctions[holder.Length];
             noiseFunctions = holder;
+            file.Close();
+        }
+    }
+
+    public void LoadTerrain(string filePath)  //loads map from a given string location
+    {
+        if (File.Exists(filePath))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(filePath, FileMode.Open);
+            TerrainPresets[] loadedPresets = (TerrainPresets[])bf.Deserialize(file);
+            TerrainType[] holder = new TerrainType[loadedPresets.Length];
+            for (int i = 0; i < loadedPresets.Length; i++)
+            {
+                holder[i] = new TerrainType(loadedPresets[i]);
+            }
+
+            regions = new TerrainType[holder.Length];
+            regions = holder;
             file.Close();
         }
     }
@@ -605,11 +638,18 @@ public class TerrainType
     public double height;
     public Color color;
 
-    TerrainType(TerrainPresets sourcePresets)
+    public TerrainType(TerrainPresets sourcePresets)
     {
         name = sourcePresets.name;
         height = sourcePresets.height;
         color = new Color(sourcePresets.r, sourcePresets.g, sourcePresets.g, sourcePresets.a);
+    }
+
+    public TerrainPresets getTPR()
+    {
+        TerrainPresets outPut = new TerrainPresets();
+        outPut = ConvertTPR(this);
+        return outPut;
     }
 
     public TerrainPresets ConvertTPR(TerrainType Source)
@@ -635,6 +675,7 @@ public class TerrainType
 #endregion
 
 #region Terrain Groups Serializable Container
+[System.Serializable]
 public struct TerrainPresets
 {
     public string name;
