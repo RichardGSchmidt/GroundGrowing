@@ -445,6 +445,7 @@ namespace LibNoise
             }
         }
 
+        //<Custom implementation for GroundGrowing, deviates from standard LibNoise.  08/19/2018 RGS>
         public void GenerateSpherical(double south, double north, double west, double east, ref int timestamp, ref int check, ref bool reset)
         {
             int check3 = timestamp;

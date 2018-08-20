@@ -38,10 +38,10 @@ TODO:
 variety of presets settings or files.
 
 *Conversion from 2d arrays to 1d arrays for textures
-to avoid the hiccup on texture updates. 
+to avoid the hiccup on texture updates. <DONE RGS 8/19/18>
 
 *Move the timestamp checker deeper into the texture draw
-method to cause thread halts earlier after changes.  
+method to cause thread halts earlier after changes.  <DONE RGS 8/19/18>
 
 *Better Shaders / terrain groups.
 

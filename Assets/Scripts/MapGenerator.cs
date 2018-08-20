@@ -278,7 +278,7 @@ public class MapGenerator : MonoBehaviour
         noiseThread.Start();
         while (drawInProgress)
         {
-            Debug.Log("Tick");
+            //Debug.Log("Tick");
             if (noiseMapUpdateAvailable)
             {
                 UpdateSphereMap();
