@@ -28,7 +28,7 @@ public class MapGenerator : MonoBehaviour
     //It should be noted that seamless generation takes much more time
     public bool seamless = false;
     public bool oceans = true;
-    public bool clamped = true;
+    public bool clamped = true; 
     //inspector varibles
     public MapType mapType;
     public RenderType renderType;
@@ -41,6 +41,7 @@ public class MapGenerator : MonoBehaviour
 
     public string seed;
     public bool useRandomSeed;
+    [HideInInspector]
     public TerrainType[] regions;
     [HideInInspector]
     public int seedValue;
@@ -637,6 +638,13 @@ public class TerrainType
     public string name;
     public double height;
     public Color color;
+
+    public TerrainType()
+    {
+        name = "pick a name";
+        height = 0;
+        color = Color.white;
+    }
 
     public TerrainType(TerrainPresets sourcePresets)
     {

@@ -9,6 +9,7 @@ public class MapGenEditor : Editor {
 
     public NoiseFunctions.NoiseType noiseType;
     public bool showNoiseFunctions;
+    public bool showRegionGroups;
     public bool showTextures;
     private string fileName;
     public NoiseFunctions[] oldNoises;
@@ -47,6 +48,15 @@ public class MapGenEditor : Editor {
         if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
         #endregion
 
+        #region Terrain Group Functionality
+
+        #region Terrain Group Fold Out
+
+        #endregion
+
+        #endregion
+
+
         #region Image Save Functionality
 
         if (GUILayout.Button("Save Image"))
@@ -54,6 +64,50 @@ public class MapGenEditor : Editor {
             fileName = EditorUtility.SaveFilePanel("Save a Copy of Texture", Application.dataPath, "mapimage", "png");
             mapGen.SaveImage(fileName);
         }
+        #endregion
+
+        #region Regions Foldout
+
+        showRegionGroups = EditorGUILayout.Foldout(showRegionGroups, "Regions");
+        if (showRegionGroups)
+        {
+            if (GUILayout.Button("Add New Region"))
+            {
+                TerrainType[] placeHolder = new TerrainType[mapGen.regions.Length + 1];
+                for (int k = 0; k < mapGen.regions.Length; k++)
+                {
+                    placeHolder[k] = mapGen.regions[k];
+                }
+                placeHolder[mapGen.regions.Length] = new TerrainType();
+                mapGen.regions = new TerrainType[placeHolder.Length];
+                for(int k = 0; k < mapGen.regions.Length; k++)
+                {
+                    mapGen.regions[k] = placeHolder[k];
+                }
+                return;
+            }
+            if (GUILayout.Button("Save Regions"))
+            {
+                fileName = EditorUtility.SaveFilePanel("Save Current Regions", Application.dataPath, "Regions", "tpr");
+                mapGen.SaveTerrain(mapGen.regions, fileName);
+            }
+            if (GUILayout.Button("Load Regions From File"))
+            {
+                fileName = EditorUtility.OpenFilePanel("Load Regions from File ", null, "tpr");
+                mapGen.LoadTerrain(fileName);
+                mapGen.GenerateMap();
+            }
+        }
+
+        for(int i = 0; i < mapGen.regions.Length; i++)
+        {
+            if (showRegionGroups)
+            {
+                GetInspectorElements(mapGen.regions[i], i, mapGen);
+            }
+
+        }
+
         #endregion
 
         #region Noise Functions Foldout
@@ -112,7 +166,37 @@ public class MapGenEditor : Editor {
                 mapGen.GenerateMap();
             }
     }
-   
+
+
+    public void GetInspectorElements(TerrainType terrainType, int index, MapGenerator generator)
+    {
+        EditorGUILayout.Space();
+        terrainType.name = (string)EditorGUILayout.TextField("Region Name", terrainType.name);
+        terrainType.color = (Color)EditorGUILayout.ColorField(terrainType.color);
+        terrainType.height = (double)EditorGUILayout.Slider("Height", (float)terrainType.height, -1.00000f, 1.30000f);
+
+        if (GUILayout.Button("Remove"))
+        {
+            MapGenerator mapGen = (MapGenerator)target;
+            TerrainType[] placeholder = new TerrainType[mapGen.regions.Length - 1];
+            for (int i = 0; i < mapGen.regions.Length; i++)
+            {
+                int tempIndex = 0;
+                if (i != index)
+                {
+                    placeholder[tempIndex] = mapGen.regions[i];
+                    tempIndex++;
+                }
+            }
+            mapGen.regions = new TerrainType[mapGen.regions.Length - 1];
+            for (int i = 0; i < mapGen.regions.Length; i++)
+            {
+                mapGen.regions[i] = placeholder[i];
+            }
+
+        }
+    }
+
     public void GetInspectorElements(NoiseFunctions noiseFunc, int index, MapGenerator generator)
     {
         //to autoupdate if this panel has been changed
