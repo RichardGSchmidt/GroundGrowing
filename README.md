@@ -7,7 +7,7 @@ may break / change without notice as I attempt to
 improve it.  There will also be notes to myself 
 all throughout the code and documentation.
 
-A video to an earlier build of the program
+A video of an earlier build of the program
 can be found at:
 https://www.youtube.com/watch?v=UYVcR3TiSrw
 
