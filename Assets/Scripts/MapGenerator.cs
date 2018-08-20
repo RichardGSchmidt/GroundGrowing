@@ -185,7 +185,7 @@ public class MapGenerator : MonoBehaviour
         #endregion
 
         #region Flat Terrain Generator
-
+        //non functional
 
         else if (mapType == MapType.FlatTerrain)
         {
@@ -599,12 +599,53 @@ public struct NoisePresets
 #region Terrain Groups
 //serializable to be accessible in the inspector
 [System.Serializable]
-public struct TerrainType
+public class TerrainType
 {
     public string name;
     public double height;
     public Color color;
+
+    TerrainType(TerrainPresets sourcePresets)
+    {
+        name = sourcePresets.name;
+        height = sourcePresets.height;
+        color = new Color(sourcePresets.r, sourcePresets.g, sourcePresets.g, sourcePresets.a);
+    }
+
+    public TerrainPresets ConvertTPR(TerrainType Source)
+    {
+        TerrainPresets outPut = new TerrainPresets
+        {
+            name = Source.name,
+            height = Source.height,
+            r = Source.color.r,
+            g = Source.color.g,
+            b = Source.color.b,
+            a = Source.color.a
+        };
+        return outPut;
+    }
+
+    public TerrainType ConvertTPR(TerrainPresets Source)
+    {
+        TerrainType outPut = new TerrainType(Source);
+        return outPut;
+    }
 }
 #endregion
+
+#region Terrain Groups Serializable Container
+public struct TerrainPresets
+{
+    public string name;
+    public double height;
+    public float r;
+    public float b;
+    public float g;
+    public float a;
+}
+#endregion
+
+
 
 #endregion

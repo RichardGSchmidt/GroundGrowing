@@ -25,6 +25,7 @@ C# implementation of the LibNoise Library.
 TODO:
 
 
+*Fix or remove Grey-Scale.
 
 *Code reduction / hiearchy seperation.
 
