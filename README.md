@@ -24,6 +24,7 @@ C# implementation of the LibNoise Library.
 
 TODO:
 
+*Autosort Terrain groups by height.
 
 *Fix or remove Grey-Scale.
 
@@ -44,7 +45,7 @@ method to cause thread halts earlier after changes.  <DONE RGS 8/19/18>
 
 *Better Shaders / terrain groups.
 
-*Terrain group serialization storage and file IO.  
+*Terrain group serialization storage and file IO.  <Done RGS 8/20/2018>
 
 *Ocean toggle.  <DONE RGS 8/19/18>
 
