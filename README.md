@@ -1,15 +1,13 @@
 # GroundGrowing
 Open Source Unity3d Planetary Terrain Generator
 
+See the wiki on gitHub for screenshots and video.
+
 This project is not completed, but is still usable.
 This is also the working copy as well, so things
 may break / change without notice as I attempt to
 improve it.  There will also be notes to myself 
 all throughout the code and documentation.
-
-A video of an earlier build of the program
-can be found at:
-https://www.youtube.com/watch?v=UYVcR3TiSrw
 
 It currently uses the #region style organization,
 so the code looks best in Visual Studio; where
