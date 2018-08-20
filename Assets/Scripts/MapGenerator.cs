@@ -278,6 +278,7 @@ public class MapGenerator : MonoBehaviour
         noiseThread.Start();
         while (drawInProgress)
         {
+            Debug.Log("Tick");
             if (noiseMapUpdateAvailable)
             {
                 UpdateSphereMap();
@@ -297,7 +298,7 @@ public class MapGenerator : MonoBehaviour
     {
         MapDisplay display = FindObjectOfType<MapDisplay>();
         noiseMap = updatedMap;
-        Debug.Log("updating map");
+        Debug.Log(latestTimeProcessRequested +"updating map");
         mapTexture = GetMapTexture(renderType, noiseMap);
         display.DrawMesh(SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, regions), mapTexture);
         noiseMapUpdateAvailable = false;
@@ -318,9 +319,11 @@ public class MapGenerator : MonoBehaviour
 
         for (int i = 16; i > 1; i=i/2)
         {
+            Debug.Log((count+1) + " run start by " + processTimestamp);
             if(processTimestamp != latestTimeProcessRequested)
             {
-                Debug.Log("Stopping Thread via Time Check");
+                Debug.Log("Stopping Thread " + processTimestamp + " for thread " + latestTimeProcessRequested);
+                drawInProgress = false;
                 return;
             }
             if (i == 16)
@@ -329,10 +332,17 @@ public class MapGenerator : MonoBehaviour
             }
             count++;
             Noise2D placeHolder;
-            Debug.Log("drawing map " + count);
+            Debug.Log("drawing map " + count + " by " + processTimestamp );
             placeHolder = new Noise2D(mapWidth / i, mapHeight / i, baseModule);
-            placeHolder.GenerateSpherical(-90, 90, -180, 180, ref latestTimeProcessRequested, ref processTimestamp);
-            Debug.Log("Map " + count + " drawn");
+            placeHolder.GenerateSpherical(-90, 90, -180, 180, ref latestTimeProcessRequested, ref processTimestamp, ref reset);
+            if (latestTimeProcessRequested != processTimestamp)
+            {
+                Debug.Log("Stopping Thread (2nd shallow catch)" + processTimestamp + " for thread" + latestTimeProcessRequested);
+                drawInProgress = false;
+                return;
+                
+            }
+            Debug.Log("Map " + count + " drawn by " + processTimestamp);
             updatedMap = placeHolder;
             noiseMapUpdateAvailable = true;
         }

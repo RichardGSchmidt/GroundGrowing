@@ -445,8 +445,9 @@ namespace LibNoise
             }
         }
 
-        public void GenerateSpherical(double south, double north, double west, double east, ref int timestamp, ref int check)
+        public void GenerateSpherical(double south, double north, double west, double east, ref int timestamp, ref int check, ref bool reset)
         {
+            int check3 = timestamp;
             if (east <= west || north <= south)
             {
                 throw new ArgumentException("Invalid east/west or north/south combination");
@@ -462,9 +463,9 @@ namespace LibNoise
             var clo = west;
             for (var x = 0; x < _ucWidth; x++)
             {
-                if (timestamp != check)
+                if ((timestamp != check) || (timestamp != check3) || (reset))
                 {
-                    Debug.Log("downrange timestamp caught, stopping");
+                    Debug.Log("downrange timestamp catch, stopping");
                     return;
                 };
                 var cla = south;
