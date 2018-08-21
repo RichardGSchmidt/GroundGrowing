@@ -107,7 +107,7 @@ public class MapGenerator : MonoBehaviour
 
         #endregion
 
-        #region Noise Stack Initialization
+        #region Noise Map Initialization
 
         //Generates a random seed and passes it to the noise processor
         if (!useRandomSeed) { seedValue = seed.GetHashCode(); }
@@ -186,12 +186,11 @@ public class MapGenerator : MonoBehaviour
         for (int i = 0; i < noiseStack.Length; i++)
         {
             noiseStack[i].seed = seed + i;
-            noiseStack[i].MakeNoise();
 
             //for first valid noise pattern simply pass the noise function
             if ((noiseStack[i].enabled) && (baseModule == null))
             {
-                baseModule = noiseStack[i].moduleBase;
+                baseModule = noiseStack[i].MakeNoise();
             }
 
             //all others valid add to / subtract from the previous iteration of the baseModule
@@ -199,11 +198,11 @@ public class MapGenerator : MonoBehaviour
             {
                 if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Add)
                 {
-                    baseModule = new Add(baseModule, noiseStack[i].moduleBase);
+                    baseModule = new Add(baseModule, noiseStack[i].MakeNoise());
                 }
                 if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Subtract)
                 {
-                    baseModule = new Subtract(baseModule, noiseStack[i].moduleBase);
+                    baseModule = new Subtract(baseModule, noiseStack[i].MakeNoise());
                 }
             }
         }
@@ -460,8 +459,6 @@ public class NoiseFunctions
     //public float noiseScale = 0.5f;
     public NoiseType type = NoiseType.Perlin;
     public bool enabled = false;
-    public ModuleBase moduleBase;
-    
  
     [Range(0f,20f)]
     public double frequency;
@@ -490,6 +487,16 @@ public class NoiseFunctions
         distance = true;
         blendMode = BlendMode.Add;
 
+    }
+    public ModuleBase MakeNoise()
+    {
+        //this function builds the base module out of the noise function that calls it.
+        ModuleBase _baseModule = null;
+        if (type == NoiseType.Billow) { _baseModule = new Billow(frequency, lacunarity, persistence, octaves, seed, qualityMode); }
+        else if (type == NoiseType.Perlin) { _baseModule = new Perlin(frequency, lacunarity, persistence, octaves, seed, qualityMode); }
+        else if (type == NoiseType.Voronoi) { _baseModule = new Voronoi(frequency, displacement, seed, distance); }
+        else if (type == NoiseType.RidgedMultifractal) { _baseModule = new RidgedMultifractal(frequency, lacunarity, octaves, seed, qualityMode); }
+        return _baseModule;
     }
 
     #region Noise Functions Preset Handling
@@ -607,21 +614,7 @@ public class NoiseFunctions
         return preset;
     }
     #endregion
-
-    //generates the mesh based on selected noise type
-    public void MakeNoise()
-    {
-
-        if (type == NoiseType.Billow) { moduleBase = new Billow(frequency, lacunarity, persistence, octaves, seed, qualityMode);}
-        else if (type == NoiseType.Perlin) { moduleBase = new Perlin(frequency,lacunarity,persistence,octaves,seed,qualityMode);}
-        else if (type == NoiseType.Voronoi) { moduleBase = new Voronoi(frequency,displacement,seed,distance);}
-        else if (type == NoiseType.RidgedMultifractal) { moduleBase = new RidgedMultifractal(frequency,lacunarity,octaves,seed,qualityMode);}
-        else moduleBase = null;
-
-
-    }
-
-
+    
 }
 #endregion
 
