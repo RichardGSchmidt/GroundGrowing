@@ -22,7 +22,7 @@ terrain generation at various resolutions, using multiple
 noise types that can be stacked and layered courtesy of a
 C# implementation of the LibNoise Library.
 
-TODO:
+TODO LIST:
 
 
 *Fix or remove Grey-Scale. <DONE RGS 8/20/18>
