@@ -149,7 +149,14 @@ public class MapGenerator : MonoBehaviour
             {
                 //this is where I want to do blend mode adjustments using
                 //libNoise add, blend, subtract, multiply etc as an effect (along with falloffs maybe)
-                baseModule = new Add(baseModule, noiseFunctions[i].moduleBase);
+                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Add)
+                {
+                    baseModule = new Add(baseModule, noiseFunctions[i].moduleBase);
+                }
+                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Subtract)
+                {
+                    baseModule = new Subtract(baseModule, noiseFunctions[i].moduleBase);
+                }
             }
         }
 
@@ -479,6 +486,7 @@ public class MapGenerator : MonoBehaviour
 [System.Serializable]
 public class NoiseFunctions     
 {
+    public enum BlendMode {Add, Subtract };
     public enum NoiseType { Perlin, Billow, RidgedMultifractal, Voronoi, None };
     //[Range(0,1)]
     //public float noiseScale = 0.5f;
@@ -496,6 +504,7 @@ public class NoiseFunctions
     [Range(1,18)]
     public int octaves;
     public int seed;
+    public BlendMode blendMode;
     public QualityMode qualityMode;
 
     public double displacement;
@@ -511,6 +520,7 @@ public class NoiseFunctions
         qualityMode = QualityMode.Low;
         displacement = 1;
         distance = true;
+        blendMode = BlendMode.Add;
 
     }
 
@@ -554,6 +564,16 @@ public class NoiseFunctions
         else 
         {
             type = NoiseType.None;
+        }
+
+        if (presets.blendMode == NoisePresets.BlendMode.Subtract)
+        {
+            blendMode = BlendMode.Subtract;
+        }
+
+        else
+        {
+            blendMode = BlendMode.Add;
         }
 
 
@@ -607,6 +627,15 @@ public class NoiseFunctions
             preset.noiseType = NoisePresets.NoiseType.None;
         }
 
+        if (blendMode == BlendMode.Subtract)
+        {
+            preset.blendMode = NoisePresets.BlendMode.Subtract;
+        }
+        else
+        {
+            preset.blendMode = NoisePresets.BlendMode.Add;
+        }
+
         return preset;
     }
     #endregion
@@ -635,6 +664,7 @@ public struct NoisePresets
 {
     public enum NoiseType { Perlin, Billow, RidgedMultifractal, Voronoi, None };
     public enum QualityMode { Low, Medium, High };
+    public enum BlendMode { Add, Subtract };
     public NoiseType noiseType;
     public bool enabled;
     public double frequency;
@@ -642,6 +672,7 @@ public struct NoisePresets
     public double persistence;
     public int octaves;
     public QualityMode qualityMode;
+    public BlendMode blendMode;
     public double displacement;
     public bool distance;
 
