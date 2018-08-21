@@ -178,7 +178,7 @@ public class MapGenEditor : Editor {
         EditorGUILayout.Space();
         terrainType.name = EditorGUILayout.TextField("Region Name", terrainType.name);
         terrainType.color = EditorGUILayout.ColorField(terrainType.color);
-        terrainType.height = EditorGUILayout.Slider("Height", (float)terrainType.height, -1.00000f, 1.30000f);
+        terrainType.height = EditorGUILayout.Slider("Height", (float)terrainType.height, -1.80000f, 1.80000f);
 
         if (GUILayout.Button("Remove"))
         {
