@@ -126,15 +126,12 @@ public class MapGenerator : MonoBehaviour
 
         #endregion
 
-        #region Planet Generator
+        #region Planet Generator Setup
         if (mapType == MapType.Planet)
         {
             mapHeight = mapWidth / 2;
             renderType = RenderType.Color;
 
-            noiseMap = new Noise2D(100, 100, baseModule);
-            noiseMap.GenerateSpherical(-90, 90, -180, 180);
-            mapTexture = GetMapTexture(renderType, noiseMap);
             if ((oceans) && (!waterMesh.activeSelf))
             {
                 waterMesh.SetActive(true);
@@ -177,6 +174,7 @@ public class MapGenerator : MonoBehaviour
         StartCoroutine(TextureRefiner());
         #endregion
     }
+
     #endregion
 
     #region Noise Processor
