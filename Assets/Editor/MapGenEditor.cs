@@ -97,6 +97,11 @@ public class MapGenEditor : Editor {
                 mapGen.LoadTerrain(fileName);
                 mapGen.GenerateMap();
             }
+            if (GUILayout.Button("Sort Regions By Height"))
+            {
+                mapGen.SortRegions();
+                return;
+            }
         }
 
         for(int i = 0; i < mapGen.regions.Length; i++)
@@ -177,6 +182,7 @@ public class MapGenEditor : Editor {
 
         if (GUILayout.Button("Remove"))
         {
+            EditorGUI.BeginChangeCheck();
             MapGenerator mapGen = (MapGenerator)target;
             TerrainType[] placeholder = new TerrainType[mapGen.regions.Length - 1];
             for (int i = 0; i < mapGen.regions.Length; i++)
@@ -192,6 +198,10 @@ public class MapGenEditor : Editor {
             for (int i = 0; i < mapGen.regions.Length; i++)
             {
                 mapGen.regions[i] = placeholder[i];
+            }
+            if (generator.autoUpdate && EditorGUI.EndChangeCheck())
+            {
+                generator.GenerateMap();
             }
 
         }

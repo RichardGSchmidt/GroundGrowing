@@ -26,13 +26,17 @@ public class MapGenerator : MonoBehaviour
     
     //bool to select between seamless and non seamless map generation for 2d maps
     //It should be noted that seamless generation takes much more time
+    [HideInInspector]
     public bool seamless = false;
     public bool oceans = true;
     public bool clamped = true; 
     //inspector varibles
-    public MapType mapType;
+    [HideInInspector]
+    public MapType mapType = MapType.Planet;
+    [HideInInspector]
     public RenderType renderType;
     public int mapWidth;
+    [HideInInspector]
     public int mapHeight;
     public bool autoUpdate;
 
@@ -116,8 +120,7 @@ public class MapGenerator : MonoBehaviour
 
 
         MapDisplay display = FindObjectOfType<MapDisplay>();
-        //this object needs better selection handling to
-        //account for multiple  object types
+
 
         if (!useRandomSeed)
         {
@@ -164,6 +167,9 @@ public class MapGenerator : MonoBehaviour
         #region Planet Generator
         if (mapType == MapType.Planet)
         {
+            mapHeight = mapWidth / 2;
+            renderType = RenderType.Color;
+
             noiseMap = new Noise2D(100, 100, baseModule);
             noiseMap.GenerateSpherical(-90, 90, -180, 180);
             mapTexture = GetMapTexture(renderType, noiseMap);
@@ -454,6 +460,17 @@ public class MapGenerator : MonoBehaviour
 
     #endregion
 
+    public void SortRegions()
+    {
+        Array.Sort(regions, delegate (TerrainType mapType1, TerrainType mapType2) 
+        {
+            return mapType1.height.CompareTo(mapType2.height);
+        });
+            
+
+            
+    }
+
 }
 
     #region Serialized Data Sets
@@ -606,6 +623,8 @@ public class NoiseFunctions
 
 
     }
+
+
 }
 #endregion
 
@@ -679,6 +698,7 @@ public class TerrainType
         TerrainType outPut = new TerrainType(Source);
         return outPut;
     }
+
 }
 #endregion
 

@@ -25,28 +25,20 @@ C# implementation of the LibNoise Library.
 TODO:
 
 
-*Fix or remove Grey-Scale.
+*Fix or remove Grey-Scale. <DONE RGS 8/20/18>
 
 *Code reduction / hiearchy seperation.
 
 *Multicore rendering off switch.
 
-*Fix / improve multithreading implementation. <DONE RGS 8/19/18>
-
 *Better fuctions to run the generator instantiated with 
 variety of presets settings or files.
 
-*Conversion from 2d arrays to 1d arrays for textures
-to avoid the hiccup on texture updates. <DONE RGS 8/19/18>
+*Better Shaders. 
 
-*Move the timestamp checker deeper into the texture draw
-method to cause thread halts earlier after changes.  <DONE RGS 8/19/18>
+*terrain group blending.
 
-*Better Shaders / terrain groups.
-
-*Terrain group serialization storage and file IO.  
-
-*Ocean toggle.  <DONE RGS 8/19/18>
+*Terrain group serialization storage and file IO.  <Done RGS 8/20/18>
 
 *Custom noise inserts(e.g. gas giants, ice caps, stars.).
 
