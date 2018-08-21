@@ -176,34 +176,15 @@ public class MapGenEditor : Editor {
     public void GetInspectorElements(TerrainType terrainType, int index, MapGenerator generator)
     {
         EditorGUILayout.Space();
-        terrainType.name = (string)EditorGUILayout.TextField("Region Name", terrainType.name);
-        terrainType.color = (Color)EditorGUILayout.ColorField(terrainType.color);
-        terrainType.height = (double)EditorGUILayout.Slider("Height", (float)terrainType.height, -1.00000f, 1.30000f);
+        terrainType.name = EditorGUILayout.TextField("Region Name", terrainType.name);
+        terrainType.color = EditorGUILayout.ColorField(terrainType.color);
+        terrainType.height = EditorGUILayout.Slider("Height", (float)terrainType.height, -1.00000f, 1.30000f);
 
         if (GUILayout.Button("Remove"))
         {
-            EditorGUI.BeginChangeCheck();
-            MapGenerator mapGen = (MapGenerator)target;
-            TerrainType[] placeholder = new TerrainType[mapGen.regions.Length - 1];
-            for (int i = 0; i < mapGen.regions.Length; i++)
-            {
-                int tempIndex = 0;
-                if (i != index)
-                {
-                    placeholder[tempIndex] = mapGen.regions[i];
-                    tempIndex++;
-                }
-            }
-            mapGen.regions = new TerrainType[mapGen.regions.Length - 1];
-            for (int i = 0; i < mapGen.regions.Length; i++)
-            {
-                mapGen.regions[i] = placeholder[i];
-            }
-            if (generator.autoUpdate && EditorGUI.EndChangeCheck())
-            {
-                generator.GenerateMap();
-            }
-
+            TerrainType[] placeHolder = new TerrainType[generator.regions.Length - 1];
+            placeHolder = generator.regions.RemoveAt(index);
+            generator.regions = placeHolder;
         }
     }
 
@@ -227,23 +208,9 @@ public class MapGenEditor : Editor {
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
             if (GUILayout.Button("Remove"))
             {
-                MapGenerator mapGen = (MapGenerator)target;
-                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    int tempIndex = 0;
-                    if (i != index)
-                    {
-                        placeholder[tempIndex] = mapGen.noiseFunctions[i];
-                        tempIndex++;
-                    }
-                }
-                mapGen.noiseFunctions = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    mapGen.noiseFunctions[i] = placeholder[i];
-                }
-                
+                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                placeHolder = generator.noiseFunctions.RemoveAt(index);
+                generator.noiseFunctions = placeHolder;
             }
         }
         #endregion
@@ -263,23 +230,9 @@ public class MapGenEditor : Editor {
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
             if (GUILayout.Button("Remove"))
             {
-                MapGenerator mapGen = (MapGenerator)target;
-                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    int tempIndex = 0;
-                    if (i != index)
-                    {
-                        placeholder[tempIndex] = mapGen.noiseFunctions[i];
-                        tempIndex++;
-                    }
-                }
-                mapGen.noiseFunctions = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    mapGen.noiseFunctions[i] = placeholder[i];
-                }
-
+                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                placeHolder = generator.noiseFunctions.RemoveAt(index);
+                generator.noiseFunctions = placeHolder;
             }
         }
 #endregion
@@ -297,23 +250,9 @@ public class MapGenEditor : Editor {
             noiseFunc.distance = EditorGUILayout.ToggleLeft("Use Distance", noiseFunc.distance);
             if (GUILayout.Button("Remove"))
             {
-                MapGenerator mapGen = (MapGenerator)target;
-                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    int tempIndex = 0;
-                    if (i != index)
-                    {
-                        placeholder[tempIndex] = mapGen.noiseFunctions[i];
-                        tempIndex++;
-                    }
-                }
-                mapGen.noiseFunctions = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    mapGen.noiseFunctions[i] = placeholder[i];
-                }
-
+                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                placeHolder = generator.noiseFunctions.RemoveAt(index);
+                generator.noiseFunctions = placeHolder;
             }
 
         }
@@ -334,24 +273,9 @@ public class MapGenEditor : Editor {
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
             if (GUILayout.Button("Remove"))
             {
-                MapGenerator mapGen = (MapGenerator)target;
-                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    int tempIndex = 0;
-                    if (i != index)
-                    {
-                        placeholder[tempIndex] = mapGen.noiseFunctions[i];
-                        tempIndex++;
-                    }
-                }
-                mapGen.noiseFunctions = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    mapGen.noiseFunctions[i] = placeholder[i];
-                }
-                return;
-
+                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                placeHolder = generator.noiseFunctions.RemoveAt(index);
+                generator.noiseFunctions = placeHolder;
             }
         }
         #endregion
@@ -366,23 +290,9 @@ public class MapGenEditor : Editor {
             noiseFunc.type = (NoiseFunctions.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             if (GUILayout.Button("Remove"))
             {
-                MapGenerator mapGen = (MapGenerator)target;
-                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    int tempIndex = 0;
-                    if (i != index)
-                    {
-                        placeholder[tempIndex] = mapGen.noiseFunctions[i];
-                        tempIndex++;
-                    }
-                }
-                mapGen.noiseFunctions = new NoiseFunctions[mapGen.noiseFunctions.Length - 1];
-                for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-                {
-                    mapGen.noiseFunctions[i] = placeholder[i];
-                }
-
+                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                placeHolder = generator.noiseFunctions.RemoveAt(index);
+                generator.noiseFunctions = placeHolder;
             }
             noiseFunc.enabled = false;
         }
