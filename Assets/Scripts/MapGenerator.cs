@@ -12,24 +12,23 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class MapGenerator : MonoBehaviour
 {
     #region public values
-    //MFU The variables to be setup in custom constructors calls
-   
+
     //enum to determine which texture to generate
-    public enum MapType {FlatTerrain, Planet};
+    public enum MapType { FlatTerrain, Planet };
     [Range(1, 6)]
     public int PlanetItterations;
     public float radius;
     public float seaLevelOffset;
-    public enum RenderType {Greyscale, Color };
+    public enum RenderType { Greyscale, Color };
     [HideInInspector]
     public GameObject mapCanvas;
-    
+
     //bool to select between seamless and non seamless map generation for 2d maps
     //It should be noted that seamless generation takes much more time
     [HideInInspector]
     public bool seamless = false;
     public bool oceans = true;
-    public bool clamped = true; 
+    public bool clamped = true;
     //inspector varibles
     [HideInInspector]
     public MapType mapType = MapType.Planet;
@@ -85,90 +84,46 @@ public class MapGenerator : MonoBehaviour
     /// It then calls a function to generate the Mesh (or 3D object)
     /// and applies the noise to the mesh inside of the function 
     /// to draw the mesh.
-    /// 
-    /// Also in this located in this region is the map texture generator,
-    /// which actually makes up a signifigant bulk of the computational 
-    /// cost of most map generation schemas I've found useful.
+
     /// -RGS
     /// </summary>
     public void GenerateMap()
     {
-        //MFU Need to work on the hiearchy / code reduction
-        //in this method in particular.
 
-        //MFU After reorganization add easier initial generation 
-        //calls with different types of arguments (files / settings mixtures).
-        
         #region variables and setup
-        //autoUpdate saftey catch disabled after implementing multithreading, may be added again if this is pulled back out.
-        //if (autoUpdate && (mapWidth > 400 || mapHeight > 200))
-        //{
-        //    mapWidth = 400;
-        //    mapHeight = 200;
-       //     Debug.Log("Texture resolution reduced to 400x200 max during Auto Update!");
-        //}
 
         //this is the base noise module that will be manipulated 
         baseModule = null;
-        
+
         //this is the noisemap that will be generated
         noiseMap = null;
-        
+
         //next two commands interface with multithreaded renderer
         HaltThreads();
         reset = true;
 
-
+        //misc Setup
         MapDisplay display = FindObjectOfType<MapDisplay>();
-
-
-        if (!useRandomSeed)
-        {
-            seedValue = seed.GetHashCode();
-        }
-        else
-            seedValue = UnityEngine.Random.Range(0, 10000000);
-
 
         #endregion
 
-        #region Noise Function Setup        
-        for (int i = 0; i < noiseFunctions.Length; i ++)
-        {
-            noiseFunctions[i].seed = seedValue + i;
-            noiseFunctions[i].MakeNoise();
+        #region Noise Stack Initialization
 
-            //for first valid noise pattern simply pass the noise function
-            if (baseModule == null && noiseFunctions[i].enabled)
-            {
-                baseModule = noiseFunctions[i].moduleBase;
-            }
-
-            //all others valid add to the previous iteration of the baseModule
-            else if (noiseFunctions[i].enabled)
-            {
-                //this is where I want to do blend mode adjustments using
-                //libNoise add, blend, subtract, multiply etc as an effect (along with falloffs maybe)
-                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Add)
-                {
-                    baseModule = new Add(baseModule, noiseFunctions[i].moduleBase);
-                }
-                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Subtract)
-                {
-                    baseModule = new Subtract(baseModule, noiseFunctions[i].moduleBase);
-                }
-            }
-        }
-
-        //clamps the module to between 1 and 0, sort of...
+        //Generates a random seed and passes it to the noise processor
+        if (!useRandomSeed) { seedValue = seed.GetHashCode(); }
+        else seedValue = UnityEngine.Random.Range(0, 10000000);
+        baseModule = InitNoise(noiseFunctions, seedValue);
+ 
+        
+        //This clamps the module to between 1 and 0, sort of...
         //because of the way coherent noise works, it's not possible to completely
         //eliminate the possibility that a value will fall outside these ranges.
-     
         if (clamped)
         {
             baseModule = new Clamp(0, 1, baseModule);
         }
         noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
+
         #endregion
 
         #region Planet Generator
@@ -180,15 +135,14 @@ public class MapGenerator : MonoBehaviour
             noiseMap = new Noise2D(100, 100, baseModule);
             noiseMap.GenerateSpherical(-90, 90, -180, 180);
             mapTexture = GetMapTexture(renderType, noiseMap);
-            if ((oceans)&&(!waterMesh.activeSelf))
+            if ((oceans) && (!waterMesh.activeSelf))
             {
                 waterMesh.SetActive(true);
             }
             if (waterMesh != null)
             {
-                //MFU better Sea Level Autoupdate / switch
                 waterMesh.transform.localScale = 2 * (new Vector3(radius + seaLevelOffset, radius + seaLevelOffset, radius + seaLevelOffset));
-            
+
                 if (!oceans)
                 {
                     waterMesh.SetActive(false);
@@ -223,6 +177,39 @@ public class MapGenerator : MonoBehaviour
         StartCoroutine(TextureRefiner());
         #endregion
     }
+    #endregion
+
+    #region Noise Processor
+    public ModuleBase InitNoise(NoiseFunctions[] noiseStack, int seed)
+    {
+        ModuleBase baseModule = null;
+        for (int i = 0; i < noiseStack.Length; i++)
+        {
+            noiseStack[i].seed = seed + i;
+            noiseStack[i].MakeNoise();
+
+            //for first valid noise pattern simply pass the noise function
+            if ((noiseStack[i].enabled) && (baseModule == null))
+            {
+                baseModule = noiseStack[i].moduleBase;
+            }
+
+            //all others valid add to / subtract from the previous iteration of the baseModule
+            else if (noiseStack[i].enabled)
+            {
+                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Add)
+                {
+                    baseModule = new Add(baseModule, noiseStack[i].moduleBase);
+                }
+                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Subtract)
+                {
+                    baseModule = new Subtract(baseModule, noiseStack[i].moduleBase);
+                }
+            }
+        }
+        return baseModule;
+    }
+    #endregion
 
     #region Work in Progress
     public Mesh GeneratePlane()
@@ -238,7 +225,6 @@ public class MapGenerator : MonoBehaviour
 
     #region Map Texture Generator
 
-    //MFU  Need to make the 2d arrays here 1d arrays to cure the hiccups.
     private Texture2D GetMapTexture(RenderType typeIn, Noise2D noiseIn)
     {
         Texture2D mapReturned;
@@ -282,6 +268,7 @@ public class MapGenerator : MonoBehaviour
         return mapReturned;
     }
     #endregion
+
     //MFU Need to implement a non multicore rendering call as well
     #region Multithreading Handlers
     //threading handler function
@@ -312,7 +299,7 @@ public class MapGenerator : MonoBehaviour
     {
         MapDisplay display = FindObjectOfType<MapDisplay>();
         noiseMap = updatedMap;
-        Debug.Log(latestTimeProcessRequested +"updating map");
+        Debug.Log(latestTimeProcessRequested + "updating map");
         mapTexture = GetMapTexture(renderType, noiseMap);
         display.DrawMesh(SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, regions), mapTexture);
         noiseMapUpdateAvailable = false;
@@ -321,20 +308,16 @@ public class MapGenerator : MonoBehaviour
     //make this itterative to approach mapwidth
     void ProcessTextures()
     {
-           //MFU This needs to be moved downstream somehow
-           //I may need to write a seperate texture draw process
-           //Specficially for multicore rendering.
-        var processTimestamp =  latestTimeProcessRequested;
-
-        int count=0;
+        var processTimestamp = latestTimeProcessRequested;
+        int count = 0;
 
         //the crazyness in the for loop's i value is in order to allow it to be
         //used as a resolution manipulator without doing the math multiple times inside a loop
 
-        for (int i = 16; i > 1; i=i/2)
+        for (int i = 16; i > 1; i = i / 2)
         {
-            Debug.Log((count+1) + " run start by " + processTimestamp);
-            if(processTimestamp != latestTimeProcessRequested)
+            Debug.Log((count + 1) + " run start by " + processTimestamp);
+            if (processTimestamp != latestTimeProcessRequested)
             {
                 Debug.Log("Stopping Thread " + processTimestamp + " for thread " + latestTimeProcessRequested);
                 drawInProgress = false;
@@ -346,7 +329,7 @@ public class MapGenerator : MonoBehaviour
             }
             count++;
             Noise2D placeHolder;
-            Debug.Log("drawing map " + count + " by " + processTimestamp );
+            Debug.Log("drawing map " + count + " by " + processTimestamp);
             placeHolder = new Noise2D(mapWidth / i, mapHeight / i, baseModule);
             placeHolder.GenerateSpherical(-90, 90, -180, 180, ref latestTimeProcessRequested, ref processTimestamp, ref reset);
             if (latestTimeProcessRequested != processTimestamp)
@@ -354,7 +337,7 @@ public class MapGenerator : MonoBehaviour
                 Debug.Log("Stopping Thread (2nd shallow catch)" + processTimestamp + " for thread" + latestTimeProcessRequested);
                 drawInProgress = false;
                 return;
-                
+
             }
             Debug.Log("Map " + count + " drawn by " + processTimestamp);
             updatedMap = placeHolder;
@@ -390,10 +373,7 @@ public class MapGenerator : MonoBehaviour
     }
     #endregion
 
-    #endregion
-
     #region File IO
-    //MFU Add Terrain group IO
 
     public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
     {
@@ -464,19 +444,7 @@ public class MapGenerator : MonoBehaviour
             file.Close();
         }
     }
-
     #endregion
-
-    public void SortRegions()
-    {
-        Array.Sort(regions, delegate (TerrainType mapType1, TerrainType mapType2) 
-        {
-            return mapType1.height.CompareTo(mapType2.height);
-        });
-            
-
-            
-    }
 
 }
 
@@ -748,5 +716,4 @@ public struct TerrainPresets
 }
 #endregion
 
-
-#endregion
+    #endregion

@@ -99,7 +99,7 @@ public class MapGenEditor : Editor {
             }
             if (GUILayout.Button("Sort Regions By Height"))
             {
-                mapGen.SortRegions();
+                System.Array.Sort(mapGen.regions);
                 return;
             }
         }

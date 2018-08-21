@@ -25,10 +25,6 @@ C# implementation of the LibNoise Library.
 TODO LIST:
 
 
-*Fix or remove Grey-Scale. <DONE RGS 8/20/18>
-
-*Code reduction / hiearchy seperation.
-
 *Multicore rendering off switch.
 
 *Better fuctions to run the generator instantiated with 
@@ -37,8 +33,6 @@ variety of presets settings or files.
 *Better Shaders. 
 
 *terrain group blending.
-
-*Terrain group serialization storage and file IO.  <Done RGS 8/20/18>
 
 *Custom noise inserts(e.g. gas giants, ice caps, stars.).
 
