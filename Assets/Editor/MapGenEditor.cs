@@ -59,116 +59,64 @@ public class MapGenEditor : Editor {
             mapGen.SaveImage(fileName);
         }
         #endregion
+        TerrainFoldout(ref mapGen);
+        NoiseFunctionFoldout(ref mapGen);      
+        if (GUILayout.Button("Generate")){mapGen.GenerateMap();}
 
-        #region Terrain Type Foldout
+    }
 
+    #region Inspector Elements
+
+    #region Terrain Elements
+
+    public void TerrainFoldout(ref MapGenerator _mapGen)
+    {
         showRegionGroups = EditorGUILayout.Foldout(showRegionGroups, "Regions");
         if (showRegionGroups)
         {
             if (GUILayout.Button("Add New Region"))
             {
-                TerrainType[] placeHolder = new TerrainType[mapGen.regions.Length + 1];
-                for (int k = 0; k < mapGen.regions.Length; k++)
+                TerrainType[] placeHolder = new TerrainType[_mapGen.regions.Length + 1];
+                for (int k = 0; k < _mapGen.regions.Length; k++)
                 {
-                    placeHolder[k] = mapGen.regions[k];
+                    placeHolder[k] = _mapGen.regions[k];
                 }
-                placeHolder[mapGen.regions.Length] = new TerrainType();
-                mapGen.regions = new TerrainType[placeHolder.Length];
-                for(int k = 0; k < mapGen.regions.Length; k++)
+                placeHolder[_mapGen.regions.Length] = new TerrainType();
+                _mapGen.regions = new TerrainType[placeHolder.Length];
+                for (int k = 0; k < _mapGen.regions.Length; k++)
                 {
-                    mapGen.regions[k] = placeHolder[k];
+                    _mapGen.regions[k] = placeHolder[k];
                 }
                 return;
             }
             if (GUILayout.Button("Save Regions"))
             {
                 fileName = EditorUtility.SaveFilePanel("Save Current Regions", Application.dataPath, "Regions", "tpr");
-                mapGen.SaveTerrain(mapGen.regions, fileName);
+                _mapGen.SaveTerrain(_mapGen.regions, fileName);
             }
             if (GUILayout.Button("Load Regions From File"))
             {
                 fileName = EditorUtility.OpenFilePanel("Load Regions from File ", null, "tpr");
-                mapGen.LoadTerrain(fileName);
-                mapGen.GenerateMap();
+                _mapGen.LoadTerrain(fileName);
+                _mapGen.GenerateMap();
             }
             if (GUILayout.Button("Sort Regions By Height"))
             {
-                System.Array.Sort(mapGen.regions);
+                System.Array.Sort(_mapGen.regions);
                 return;
             }
         }
 
-        for(int i = 0; i < mapGen.regions.Length; i++)
+        for (int i = 0; i < _mapGen.regions.Length; i++)
         {
             if (showRegionGroups)
             {
-                GetInspectorElements(mapGen.regions[i], i, mapGen);
+                GetInspectorElements(_mapGen.regions[i], i, _mapGen);
             }
 
         }
-
-        #endregion
-
-        #region Noise Functions Foldout
-        showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
-        if (showNoiseFunctions)
-        {
-            
-            if (GUILayout.Button("Add New Noise Function"))
-            {
-                NoiseFunctions[] placeholder = new NoiseFunctions[mapGen.noiseFunctions.Length + 1];
-                for (int j = 0; j < mapGen.noiseFunctions.Length; j++)
-                {
-                    placeholder[j] = mapGen.noiseFunctions[j];
-                }
-                placeholder[mapGen.noiseFunctions.Length] = new NoiseFunctions();
-                mapGen.noiseFunctions = new NoiseFunctions[placeholder.Length];
-                for (int j = 0; j < placeholder.Length; j++)
-                {
-                    mapGen.noiseFunctions[j] = placeholder[j];
-                }
-                return;
-            }
-
-            #region Save / Load Functions
-            if (GUILayout.Button("Save This Noise Preset"))
-            {
-                fileName = EditorUtility.SaveFilePanel("Save a New Preset", Application.dataPath, "Noise Preset", "npr");
-                mapGen.SavePresets(mapGen.noiseFunctions, fileName); 
-            }
-            if (GUILayout.Button("Load Preset From File"))
-            {
-                fileName = EditorUtility.OpenFilePanel("Load a noise File ", null, "npr");
-                mapGen.LoadPresets(fileName);
-                mapGen.GenerateMap();
-            }
-            
-        }
-
-#endregion
-
-
-        for (int i = 0; i < mapGen.noiseFunctions.Length; i++)
-            {
-                if (showNoiseFunctions)
-                {
-                    GetInspectorElements(mapGen.noiseFunctions[i], i, mapGen);
-                }
-
-            }
-       #endregion
-
-        #region Generate Button
-        if (GUILayout.Button("Generate"))
-            {
-                mapGen.GenerateMap();
-            }
-        #endregion
     }
 
-    #region Inspector Elements
-
-    #region Terrain Elements
     public void GetInspectorElements(TerrainType terrainType, int index, MapGenerator generator)
     {
         EditorGUILayout.Space();
@@ -181,9 +129,58 @@ public class MapGenEditor : Editor {
             generator.regions = generator.regions.RemoveAt(index);
         }
     }
+
     #endregion
 
     #region Noise Elements
+
+    public void NoiseFunctionFoldout(ref MapGenerator _mapGen)
+    {
+        showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
+        if (showNoiseFunctions)
+        {
+            if (GUILayout.Button("Open Noise Designer")) { NoiseDesigner.ShowWindow(); }
+
+            if (GUILayout.Button("Add New Noise Function"))
+            {
+                NoiseFunctions[] placeholder = new NoiseFunctions[_mapGen.noiseFunctions.Length + 1];
+                for (int j = 0; j < _mapGen.noiseFunctions.Length; j++)
+                {
+                    placeholder[j] = _mapGen.noiseFunctions[j];
+                }
+                placeholder[_mapGen.noiseFunctions.Length] = new NoiseFunctions();
+                _mapGen.noiseFunctions = new NoiseFunctions[placeholder.Length];
+                for (int j = 0; j < placeholder.Length; j++)
+                {
+                    _mapGen.noiseFunctions[j] = placeholder[j];
+                }
+            }
+            #region Save / Load Functions
+            if (GUILayout.Button("Save This Noise Preset"))
+            {
+                fileName = EditorUtility.SaveFilePanel("Save a New Preset", Application.dataPath, "Noise Preset", "npr");
+                _mapGen.SavePresets(_mapGen.noiseFunctions, fileName);
+            }
+            if (GUILayout.Button("Load Preset From File"))
+            {
+                fileName = EditorUtility.OpenFilePanel("Load a noise File ", null, "npr");
+                _mapGen.LoadPresets(fileName);
+                _mapGen.GenerateMap();
+            }
+            #endregion
+
+            for (int i = 0; i < _mapGen.noiseFunctions.Length; i++)
+            {
+                if (showNoiseFunctions)
+                {
+                    GetInspectorElements(_mapGen.noiseFunctions[i], i, _mapGen);
+                }
+
+            }
+
+        }
+    }
+
     public void GetInspectorElements(NoiseFunctions noiseFunc, int index, MapGenerator generator)
     {
         //to autoupdate if this panel has been changed
@@ -308,8 +305,11 @@ public class MapGenEditor : Editor {
         
 
     }
+
     #endregion
 
     #endregion
+
+
 
 }
