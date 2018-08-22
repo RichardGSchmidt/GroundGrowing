@@ -156,7 +156,7 @@ public class MapGenEditor : Editor {
                 }
 
             }
-        #endregion
+       #endregion
 
         #region Generate Button
         if (GUILayout.Button("Generate"))
@@ -311,6 +311,5 @@ public class MapGenEditor : Editor {
     #endregion
 
     #endregion
-
 
 }

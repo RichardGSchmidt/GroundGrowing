@@ -54,15 +54,17 @@ public static class SphereMagic
         {
             vertices[i] *= radius +  (float)heightadjustments[i]*adjustment * radius;
         }
-        
 
-        Mesh mesh = new Mesh();
-        mesh.name = "Planet";
-        mesh.vertices = vertices;
-        mesh.normals = normals;
-        mesh.uv = uv;
-        mesh.tangents = tangents;
-        mesh.triangles = triangles;
+
+        Mesh mesh = new Mesh
+        {
+            name = "Planet",
+            vertices = vertices,
+            normals = normals,
+            uv = uv,
+            tangents = tangents,
+            triangles = triangles
+        };
         return mesh;
     }
 

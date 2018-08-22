@@ -77,7 +77,7 @@ public class MapGenerator : MonoBehaviour
     private ModuleBase baseModule = null;
     #endregion
 
-    #region Map Generation
+    #region Map Generator
     /// <summary>
     /// The Core Map Generation Method, in essence this method
     /// takes the stack of noise methods and processes them
@@ -106,7 +106,11 @@ public class MapGenerator : MonoBehaviour
         //this is the noisemap that will be generated
         noiseMap = null;
 
-        //next two commands interface with multithreaded renderer
+
+        ///next two commands interface with multithreaded renderer
+        ///to shut it down if it's running.  The bool adds a hard 
+        ///abort check that doesn't rely on the timestamp
+  
         HaltThreads();
         reset = true;
 

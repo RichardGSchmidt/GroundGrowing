@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public static class MiscStatics
+﻿public static class MiscStatics
 {
     public static T[] RemoveAt<T>(this T[] source, int index)
 {
