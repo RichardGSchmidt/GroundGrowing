@@ -92,6 +92,13 @@ public class MapGenerator : MonoBehaviour
 
         #region variables and setup
 
+        //This function prevents the generation from happening if there is no noise stack to process.
+        if (noiseFunctions.Length < 1)
+        {
+            Debug.Log("Blank Noise functions, Please load noise functions before generating.");
+            return;
+        }
+
         //this is the base noise module that will be manipulated 
         baseModule = null;
 
