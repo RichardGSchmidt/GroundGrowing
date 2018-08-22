@@ -27,6 +27,7 @@ public class MapGenerator : MonoBehaviour
     //It should be noted that seamless generation takes much more time
     [HideInInspector]
     public bool seamless = false;
+    public bool multithreading = true;
     public bool oceans = true;
     public bool clamped = true;
     //inspector varibles
@@ -169,15 +170,11 @@ public class MapGenerator : MonoBehaviour
         #endregion
 
         #region Start Multithreaded Noisemapping
-        if (drawInProgress)
+        if (multithreading)
         {
-            HaltThreads();
+            ThreadMap();
         }
-
-        latestTimeProcessRequested = DateTime.Now.GetHashCode();
-        drawInProgress = true;
-        stop = false;
-        StartCoroutine(TextureRefiner());
+ 
         #endregion
     }
 
@@ -228,6 +225,19 @@ public class MapGenerator : MonoBehaviour
 
     #region Map Texture Generator
 
+    private void ThreadMap()
+    {
+        if (drawInProgress)
+        {
+            HaltThreads();
+        }
+
+        latestTimeProcessRequested = DateTime.Now.GetHashCode();
+        drawInProgress = true;
+        stop = false;
+        StartCoroutine(TextureRefiner());
+    }
+
     private Texture2D GetMapTexture(RenderType typeIn, Noise2D noiseIn)
     {
         Texture2D mapReturned;
@@ -273,6 +283,10 @@ public class MapGenerator : MonoBehaviour
     #endregion
 
     //MFU Need to implement a non multicore rendering call as well
+    #region Single Thread Handler
+
+    #endregion
+
     #region Multithreading Handlers
     //threading handler function
     IEnumerator TextureRefiner()
