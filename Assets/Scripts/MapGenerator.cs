@@ -170,10 +170,7 @@ public class MapGenerator : MonoBehaviour
         #endregion
 
         #region Start Multithreaded Noisemapping
-        if (multithreading)
-        {
-            ThreadMap();
-        }
+        if (multithreading){ThreadMap();}
  
         #endregion
     }
@@ -225,18 +222,7 @@ public class MapGenerator : MonoBehaviour
 
     #region Map Texture Generator
 
-    private void ThreadMap()
-    {
-        if (drawInProgress)
-        {
-            HaltThreads();
-        }
-
-        latestTimeProcessRequested = DateTime.Now.GetHashCode();
-        drawInProgress = true;
-        stop = false;
-        StartCoroutine(TextureRefiner());
-    }
+    
 
     private Texture2D GetMapTexture(RenderType typeIn, Noise2D noiseIn)
     {
@@ -282,14 +268,36 @@ public class MapGenerator : MonoBehaviour
     }
     #endregion
 
-    //MFU Need to implement a non multicore rendering call as well
     #region Single Thread Handler
-
+    /// <summary>
+    /// write me pls k thanks!
+    /// </summary>
     #endregion
 
     #region Multithreading Handlers
-    //threading handler function
+    //threading handler functions
+
+    private void ThreadMap()
+    ///summary
+    ///initializes multithreading
+    {
+        if (drawInProgress)
+        {
+            HaltThreads();
+        }
+
+        latestTimeProcessRequested = DateTime.Now.GetHashCode();
+        drawInProgress = true;
+        stop = false;
+        StartCoroutine(TextureRefiner());
+    }
+
     IEnumerator TextureRefiner()
+    ///summary
+    ///This  is the process used to launch
+    ///the noise processor and as the handler
+    ///for incoming texture maps.
+
     {
         MapDisplay display = FindObjectOfType<MapDisplay>();
         noiseThread = new Thread(ProcessTextures);
@@ -313,6 +321,9 @@ public class MapGenerator : MonoBehaviour
     }
 
     public void UpdateSphereMap()
+    ///summary
+    ///This is the process that updates the texture and
+    ///the mesh.
     {
         MapDisplay display = FindObjectOfType<MapDisplay>();
         noiseMap = updatedMap;
@@ -322,8 +333,14 @@ public class MapGenerator : MonoBehaviour
         noiseMapUpdateAvailable = false;
     }
 
-    //make this itterative to approach mapwidth
     void ProcessTextures()
+        ///summary
+        ///This thread processes the textures
+        ///incrementally in increasing resolutions.
+        ///It uses abort checks that extend to 
+        ///the more computationaly intense parts
+        ///of the code--halting and aborting threads
+        ///that are no longer necessary mid process.
     {
         var processTimestamp = latestTimeProcessRequested;
         int count = 0;

@@ -38,11 +38,11 @@ public class MapGenEditor : Editor {
          
         MapGenerator mapGen = (MapGenerator)target;
         
-        //if (DrawDefaultInspector())
-        //{
-        //    if (mapGen.autoUpdate)
-        //    { mapGen.GenerateMap(); }
-        //}
+        if (DrawDefaultInspector())
+        {
+            if ((mapGen.autoUpdate)&&!(mapGen.multithreading))
+            { mapGen.GenerateMap(); }
+        }
         #endregion
 
         #region Error Control
