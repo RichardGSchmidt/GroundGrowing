@@ -145,7 +145,6 @@ public class MapGenerator : MonoBehaviour
                     waterMesh.SetActive(false);
                 }
             }
-            display.DrawMesh(SphereMagic.CreatePlanet(PlanetItterations, radius, baseModule, heightMultiplier, regions), mapTexture);
         }
         #endregion
 
@@ -180,15 +179,15 @@ public class MapGenerator : MonoBehaviour
     #region Noise Processor
     public ModuleBase InitNoise(NoiseFunctions[] noiseStack, int seed)
     {
-        ModuleBase baseModule = null;
+        ModuleBase _baseModule = null;
         for (int i = 0; i < noiseStack.Length; i++)
         {
             noiseStack[i].seed = seed + i;
 
             //for first valid noise pattern simply pass the noise function
-            if ((noiseStack[i].enabled) && (baseModule == null))
+            if ((noiseStack[i].enabled) && (_baseModule == null))
             {
-                baseModule = noiseStack[i].MakeNoise();
+                _baseModule = noiseStack[i].MakeNoise();
             }
 
             //all others valid add to / subtract from the previous iteration of the baseModule
@@ -196,15 +195,15 @@ public class MapGenerator : MonoBehaviour
             {
                 if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Add)
                 {
-                    baseModule = new Add(baseModule, noiseStack[i].MakeNoise());
+                    _baseModule = new Add(_baseModule, noiseStack[i].MakeNoise());
                 }
                 if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Subtract)
                 {
-                    baseModule = new Subtract(baseModule, noiseStack[i].MakeNoise());
+                    _baseModule = new Subtract(_baseModule, noiseStack[i].MakeNoise());
                 }
             }
         }
-        return baseModule;
+        return _baseModule;
     }
     #endregion
 
@@ -642,7 +641,7 @@ public struct NoisePresets
 #region Terrain Groups
 //serializable to be accessible in the inspector
 [System.Serializable]
-public class TerrainType
+public class TerrainType:IComparable<TerrainType>
 {
     public string name;
     public double height;
@@ -689,12 +688,15 @@ public class TerrainType
         return outPut;
     }
 
-
+    public int CompareTo(TerrainType other)
+    {
+        return height.CompareTo(other.height);
+    }
 
 }
 #endregion
 
-#region Terrain Groups Serializable Container
+#region Terrain Serializable Storage Container
 [System.Serializable]
 public struct TerrainPresets
 {

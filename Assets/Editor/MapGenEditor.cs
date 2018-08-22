@@ -182,9 +182,7 @@ public class MapGenEditor : Editor {
 
         if (GUILayout.Button("Remove"))
         {
-            TerrainType[] placeHolder = new TerrainType[generator.regions.Length - 1];
-            placeHolder = generator.regions.RemoveAt(index);
-            generator.regions = placeHolder;
+            generator.regions = generator.regions.RemoveAt(index);
         }
     }
 
