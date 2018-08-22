@@ -7,13 +7,16 @@ using UnityEditor.UI;
 [CustomEditor(typeof (MapGenerator))]
 public class MapGenEditor : Editor {
 
+    #region Variables
     public NoiseFunctions.NoiseType noiseType;
     public bool showNoiseFunctions;
     public bool showRegionGroups;
     public bool showTextures;
     private string fileName;
     public NoiseFunctions[] oldNoises;
+    #endregion
 
+    #region Initial Setup
     void OnEnable()
     {
         EditorApplication.update += Update;
@@ -31,15 +34,15 @@ public class MapGenEditor : Editor {
     public override void OnInspectorGUI()
     {
         
-        #region Standard Calls
+
          
         MapGenerator mapGen = (MapGenerator)target;
         
-        if (DrawDefaultInspector())
-        {
-            if (mapGen.autoUpdate)
-            { mapGen.GenerateMap(); }
-        }
+        //if (DrawDefaultInspector())
+        //{
+        //    if (mapGen.autoUpdate)
+        //    { mapGen.GenerateMap(); }
+        //}
         #endregion
 
         #region Error Control
@@ -47,15 +50,6 @@ public class MapGenEditor : Editor {
         if (mapGen.mapWidth < 1) mapGen.mapWidth = 1;
         if (mapGen.mapHeight < 1) mapGen.mapHeight = 1;
         #endregion
-
-        #region Terrain Group Functionality
-
-        #region Terrain Group Fold Out
-
-        #endregion
-
-        #endregion
-
 
         #region Image Save Functionality
 
@@ -66,7 +60,7 @@ public class MapGenEditor : Editor {
         }
         #endregion
 
-        #region Regions Foldout
+        #region Terrain Type Foldout
 
         showRegionGroups = EditorGUILayout.Foldout(showRegionGroups, "Regions");
         if (showRegionGroups)
@@ -162,17 +156,19 @@ public class MapGenEditor : Editor {
                 }
 
             }
-#endregion
+        #endregion
 
-        
-
+        #region Generate Button
         if (GUILayout.Button("Generate"))
             {
                 mapGen.GenerateMap();
             }
+        #endregion
     }
 
+    #region Inspector Elements
 
+    #region Terrain Elements
     public void GetInspectorElements(TerrainType terrainType, int index, MapGenerator generator)
     {
         EditorGUILayout.Space();
@@ -185,7 +181,9 @@ public class MapGenEditor : Editor {
             generator.regions = generator.regions.RemoveAt(index);
         }
     }
+    #endregion
 
+    #region Noise Elements
     public void GetInspectorElements(NoiseFunctions noiseFunc, int index, MapGenerator generator)
     {
         //to autoupdate if this panel has been changed
@@ -310,8 +308,9 @@ public class MapGenEditor : Editor {
         
 
     }
-  
+    #endregion
 
+    #endregion
 
 
 }

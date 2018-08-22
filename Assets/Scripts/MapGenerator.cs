@@ -688,10 +688,7 @@ public class TerrainType:IComparable<TerrainType>
         return outPut;
     }
 
-    public int CompareTo(TerrainType other)
-    {
-        return height.CompareTo(other.height);
-    }
+    public int CompareTo(TerrainType e){return height.CompareTo(e.height);}
 
 }
 #endregion
