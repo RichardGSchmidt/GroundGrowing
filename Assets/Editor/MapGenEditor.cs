@@ -8,12 +8,12 @@ using UnityEditor.UI;
 public class MapGenEditor : Editor {
 
     #region Variables
-    public NoiseFunctions.NoiseType noiseType;
+    public NoiseFunction.NoiseType noiseType;
     public bool showNoiseFunctions;
     public bool showRegionGroups;
     public bool showTextures;
     private string fileName;
-    public NoiseFunctions[] oldNoises;
+    public NoiseFunction[] oldNoises;
     #endregion
 
     #region Initial Setup
@@ -40,7 +40,7 @@ public class MapGenEditor : Editor {
         
         if (DrawDefaultInspector())
         {
-            if ((mapGen.autoUpdate)&&!(mapGen.multithreading))
+            if ((mapGen.autoUpdate)&&(mapGen.multithreading))
             { mapGen.GenerateMap(); }
         }
         #endregion
@@ -143,13 +143,17 @@ public class MapGenEditor : Editor {
 
             if (GUILayout.Button("Add New Noise Function"))
             {
-                NoiseFunctions[] placeholder = new NoiseFunctions[_mapGen.noiseFunctions.Length + 1];
+                if(!(_mapGen.noiseFunctions.Length > 0))
+                {
+                    NoiseFunction[] tempNFunc = new NoiseFunction[1];
+                            }
+                NoiseFunction[] placeholder = new NoiseFunction[_mapGen.noiseFunctions.Length + 1];
                 for (int j = 0; j < _mapGen.noiseFunctions.Length; j++)
                 {
                     placeholder[j] = _mapGen.noiseFunctions[j];
                 }
-                placeholder[_mapGen.noiseFunctions.Length] = new NoiseFunctions();
-                _mapGen.noiseFunctions = new NoiseFunctions[placeholder.Length];
+                placeholder[_mapGen.noiseFunctions.Length] = new NoiseFunction();
+                _mapGen.noiseFunctions = new NoiseFunction[placeholder.Length];
                 for (int j = 0; j < placeholder.Length; j++)
                 {
                     _mapGen.noiseFunctions[j] = placeholder[j];
@@ -164,45 +168,52 @@ public class MapGenEditor : Editor {
             if (GUILayout.Button("Load Preset From File"))
             {
                 fileName = EditorUtility.OpenFilePanel("Load a noise File ", null, "npr");
+                Debug.Log(fileName +" loaded.");
                 _mapGen.LoadPresets(fileName);
                 _mapGen.GenerateMap();
             }
             #endregion
-
-            for (int i = 0; i < _mapGen.noiseFunctions.Length; i++)
+            if (_mapGen.noiseFunctions != null)
             {
-                if (showNoiseFunctions)
+                for (int i = 0; i < _mapGen.noiseFunctions.Length; i++)
                 {
-                    GetInspectorElements(_mapGen.noiseFunctions[i], i, _mapGen);
-                }
+                    if (showNoiseFunctions)
+                    {
+                        GetInspectorElements(_mapGen.noiseFunctions[i], i, _mapGen);
+                    }
 
+                }
             }
 
         }
     }
 
-    public void GetInspectorElements(NoiseFunctions noiseFunc, int index, MapGenerator generator)
+    public void GetInspectorElements(NoiseFunction noiseFunc, int index, MapGenerator generator)
     {
+        if (noiseFunc == null)
+        {
+            return;
+        }
         //to autoupdate if this panel has been changed
         EditorGUI.BeginChangeCheck();
 
         #region Perlin Function UI
-        if (noiseFunc.type == NoiseFunctions.NoiseType.Perlin)
+        if (noiseFunc.type == NoiseFunction.NoiseType.Perlin)
         {
             EditorGUILayout.Space();
             string name = "Perlin Noise";
             EditorGUILayout.LabelField(name);
-            noiseFunc.type = (NoiseFunctions.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
+            noiseFunc.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             noiseFunc.enabled = EditorGUILayout.ToggleLeft("Enabled", noiseFunc.enabled);
             noiseFunc.frequency = (double)EditorGUILayout.Slider("Frequency",(float)noiseFunc.frequency, -20f, 20f);
             noiseFunc.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)noiseFunc.lacunarity, -2.0000000f, 2.5000000f);
             noiseFunc.persistence = (double)EditorGUILayout.Slider("Persistence", (float)noiseFunc.persistence, -1f, 1f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
-            noiseFunc.blendMode = (NoiseFunctions.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
             if (GUILayout.Button("Remove"))
             {
-                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
                 placeHolder = generator.noiseFunctions.RemoveAt(index);
                 generator.noiseFunctions = placeHolder;
             }
@@ -210,22 +221,22 @@ public class MapGenEditor : Editor {
         #endregion
 
         #region Billow Function UI
-        else if (noiseFunc.type == NoiseFunctions.NoiseType.Billow)
+        else if (noiseFunc.type == NoiseFunction.NoiseType.Billow)
         {
             EditorGUILayout.Space();
             string name = "Billow Noise";
             EditorGUILayout.LabelField(name);
-            noiseFunc.type = (NoiseFunctions.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
+            noiseFunc.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             noiseFunc.enabled = EditorGUILayout.ToggleLeft("Enabled", noiseFunc.enabled);
             noiseFunc.frequency = (double)EditorGUILayout.Slider("Frequency", (float)noiseFunc.frequency, 0f, 20f);
             noiseFunc.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)noiseFunc.lacunarity, 1.5000000f, 3.5000000f);
             noiseFunc.persistence = (double)EditorGUILayout.Slider("Persistence", (float)noiseFunc.persistence, 0f, 1f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
-            noiseFunc.blendMode = (NoiseFunctions.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
             if (GUILayout.Button("Remove"))
             {
-                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
                 placeHolder = generator.noiseFunctions.RemoveAt(index);
                 generator.noiseFunctions = placeHolder;
             }
@@ -233,20 +244,20 @@ public class MapGenEditor : Editor {
 #endregion
 
         #region Voronoi UI
-        else if (noiseFunc.type == NoiseFunctions.NoiseType.Voronoi)
+        else if (noiseFunc.type == NoiseFunction.NoiseType.Voronoi)
         {
             EditorGUILayout.Space();
             string name = "Voronoi Noise";
             EditorGUILayout.LabelField(name);
-            noiseFunc.type = (NoiseFunctions.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
+            noiseFunc.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             noiseFunc.enabled = EditorGUILayout.ToggleLeft("Enabled", noiseFunc.enabled);
             noiseFunc.frequency = (double)EditorGUILayout.Slider("Frequency", (float)noiseFunc.frequency, 0f, 20f);
             noiseFunc.displacement = (double)EditorGUILayout.Slider("Displacement", (float)noiseFunc.displacement, 0f, 20f);
             noiseFunc.distance = EditorGUILayout.ToggleLeft("Use Distance", noiseFunc.distance);
-            noiseFunc.blendMode = (NoiseFunctions.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
             if (GUILayout.Button("Remove"))
             {
-                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
                 placeHolder = generator.noiseFunctions.RemoveAt(index);
                 generator.noiseFunctions = placeHolder;
             }
@@ -255,22 +266,22 @@ public class MapGenEditor : Editor {
 #endregion
 
         #region Ridged Multifractal UI
-        else if (noiseFunc.type == NoiseFunctions.NoiseType.RidgedMultifractal)
+        else if (noiseFunc.type == NoiseFunction.NoiseType.RidgedMultifractal)
         {
 
             EditorGUILayout.Space();
             string name = "Ridged Multifractal";
             EditorGUILayout.LabelField(name);
-            noiseFunc.type = (NoiseFunctions.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
+            noiseFunc.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             noiseFunc.enabled = EditorGUILayout.ToggleLeft("Enabled", noiseFunc.enabled);
             noiseFunc.frequency = (double)EditorGUILayout.Slider("Frequency", (float)noiseFunc.frequency, 0f, 20f);
             noiseFunc.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)noiseFunc.lacunarity, 1.5000000f, 3.5000000f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
-            noiseFunc.blendMode = (NoiseFunctions.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
             if (GUILayout.Button("Remove"))
             {
-                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
                 placeHolder = generator.noiseFunctions.RemoveAt(index);
                 generator.noiseFunctions = placeHolder;
             }
@@ -278,16 +289,16 @@ public class MapGenEditor : Editor {
         #endregion
 
         #region None UI
-        else if (noiseFunc.type == NoiseFunctions.NoiseType.None)
+        else if (noiseFunc.type == NoiseFunction.NoiseType.None)
         {
 
             EditorGUILayout.Space();
             string name = "None";
             EditorGUILayout.LabelField(name);
-            noiseFunc.type = (NoiseFunctions.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
+            noiseFunc.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             if (GUILayout.Button("Remove"))
             {
-                NoiseFunctions[] placeHolder = new NoiseFunctions[generator.noiseFunctions.Length - 1];
+                NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
                 placeHolder = generator.noiseFunctions.RemoveAt(index);
                 generator.noiseFunctions = placeHolder;
             }

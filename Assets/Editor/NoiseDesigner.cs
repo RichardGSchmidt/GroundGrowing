@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 
 public class NoiseDesigner : EditorWindow {
-    [MenuItem("Noise Designer")]
+    [MenuItem("NGUI/Noise Designer",false,120)]
     public static void ShowWindow()
     {
         EditorWindow.GetWindow(typeof(NoiseDesigner));
