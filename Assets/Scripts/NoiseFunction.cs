@@ -8,7 +8,16 @@ using UnityEngine;
 
 public class NoiseFunction
 {
-    public enum BlendMode { Add, Subtract };
+    public enum BlendMode { Add, Subtract, Max, Min, Multiply, Power };
+
+    /// <summary>
+    /// Links
+    /// Max
+    /// min
+    /// multiply
+    /// power
+    /// </summary>
+
     public enum NoiseType { Perlin, Billow, RidgedMultifractal, Voronoi, None };
     //[Range(0,1)]
     //public float noiseScale = 0.5f;
@@ -118,7 +127,22 @@ public class NoiseFunction
         {
             blendMode = BlendMode.Subtract;
         }
-
+        else if (presets.blendMode == NoisePresets.BlendMode.Max)
+        {
+            blendMode = BlendMode.Max;
+        }
+        else if (presets.blendMode == NoisePresets.BlendMode.Min)
+        {
+            blendMode = BlendMode.Min;
+        }
+        else if (presets.blendMode == NoisePresets.BlendMode.Multiply)
+        {
+            blendMode = BlendMode.Multiply;
+        }
+        else if (presets.blendMode == NoisePresets.BlendMode.Power)
+        {
+            blendMode = BlendMode.Power;
+        }
         else
         {
             blendMode = BlendMode.Add;
@@ -179,7 +203,23 @@ public class NoiseFunction
         {
             preset.blendMode = NoisePresets.BlendMode.Subtract;
         }
-        else
+        else if (blendMode == BlendMode.Power)
+        {
+            preset.blendMode = NoisePresets.BlendMode.Power;
+        }
+        else if (blendMode == BlendMode.Multiply)
+        {
+            preset.blendMode = NoisePresets.BlendMode.Multiply;
+        }
+        else if (blendMode == BlendMode.Min)
+        {
+            preset.blendMode = NoisePresets.BlendMode.Min;
+        }
+        else if (blendMode == BlendMode.Max)
+        {
+            preset.blendMode = NoisePresets.BlendMode.Max;
+        }
+        else 
         {
             preset.blendMode = NoisePresets.BlendMode.Add;
         }
@@ -189,17 +229,39 @@ public class NoiseFunction
     #endregion
 
 }
-  
+
+/// <summary>
+/// Blend(ModuleBase lhs, ModuleBase rhs, ModuleBase controller)
+/// Displace (4) 1 input 3 mutators
+/// Select(ModuleBase inputA, ModuleBase inputB, ModuleBase controller)
+/// </summary>
 public abstract class NoiseJoiner
 {
     public int mode;
+   
     public NoiseFunction[] joinedNoises;
 }
 
+/// <summary>
+/// Abs(ModuleBase input)
+/// Clamp
+/// Exponent
+/// Invert
+/// rotate
+/// Scale
+/// ScaleBias
+/// Terrace
+/// Translate
+/// Turbulence
+/// </summary>
 public abstract class NoiseFilter
 {
     public int mode;
 }
+
+/// <summary>
+/// Curve is going to need it's own custom implementation.
+/// </summary>
 
 #region Noise Presets Serializable Container
 //used to save an .npr file
@@ -208,7 +270,7 @@ public struct NoisePresets
 {
     public enum NoiseType { Perlin, Billow, RidgedMultifractal, Voronoi, None };
     public enum QualityMode { Low, Medium, High };
-    public enum BlendMode { Add, Subtract };
+    public enum BlendMode { Add, Subtract, Max, Min, Multiply, Power };
     public NoiseType noiseType;
     public bool enabled;
     public double frequency;

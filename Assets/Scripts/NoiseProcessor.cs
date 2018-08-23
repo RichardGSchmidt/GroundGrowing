@@ -19,17 +19,31 @@ public static class NoiseProcessor
             {
                 _baseModule = noiseStack[i].MakeNoise();
             }
-
-            //all others valid add to / subtract from the previous iteration of the baseModule
             else if (noiseStack[i].enabled)
             {
-                if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Add)
+                if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Power)
                 {
-                    _baseModule = new Add(_baseModule, noiseStack[i].MakeNoise());
+                    _baseModule = new Power(_baseModule, noiseStack[i].MakeNoise());
                 }
-                if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Subtract)
+                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Subtract)
                 {
                     _baseModule = new Subtract(_baseModule, noiseStack[i].MakeNoise());
+                }
+                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Max)
+                {
+                    _baseModule = new Max(_baseModule, noiseStack[i].MakeNoise());
+                }
+                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Min)
+                {
+                    _baseModule = new Min(_baseModule, noiseStack[i].MakeNoise());
+                }
+                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Multiply)
+                {
+                    _baseModule = new Multiply(_baseModule, noiseStack[i].MakeNoise());
+                }
+                else
+                {
+                    _baseModule = new Add(_baseModule, noiseStack[i].MakeNoise());
                 }
             }
         }
