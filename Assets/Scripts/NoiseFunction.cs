@@ -271,7 +271,7 @@ public abstract class NoiseJoiner
 /// </summary>
 public abstract class NoiseFilter
 {
-    //this abstract will be transfered to the main Note function.
+    //this abstract will be attached to the main Note function.
     NoiseFunction Attached { get; set; }
     bool FilterEnabled { get; set; }
     public int FilterIndex { get; set; }

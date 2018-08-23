@@ -89,6 +89,12 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     public void GenerateMap()
     {
+        ///</summary>
+        ///Things I need to add:
+        ///GenarateMap(ModuleBase);
+        //
+
+
         #region variables and setup
 
         //This function prevents the generation from happening if there is no noise stack to process.
