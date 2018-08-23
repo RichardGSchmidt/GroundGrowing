@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using LibNoise;
 using LibNoise.Generator;
+using LibNoise.Operator;
 
 
 using UnityEngine;
@@ -24,7 +25,7 @@ public class NoiseFunction
     public NoiseType type = NoiseType.Perlin;
     public bool enabled = false;
     public NoiseFunction noiseParent;
-    public NoiseFilter[] noiseFilters;
+    public NoiseFilter[] linkedFilters = null;
 
     [Range(0f, 20f)]
     public double frequency;
@@ -68,6 +69,28 @@ public class NoiseFunction
         displacement = 1;
         distance = true;
         blendMode = BlendMode.Add;
+    }
+
+    public void AttachFilter(NoiseFilter _filter)
+    {
+        if (linkedFilters == null)
+        {
+            linkedFilters = new NoiseFilter[1];
+            linkedFilters[0] = _filter;
+        }
+        else
+        {
+            NoiseFilter[] placeHolder;
+            placeHolder = new NoiseFilter[linkedFilters.Length + 1];
+            for (int i = 0; i < linkedFilters.Length; i++)
+            {
+                placeHolder[i] = linkedFilters[i];
+            }
+            placeHolder[placeHolder.Length - 1] = _filter;
+            linkedFilters = placeHolder;
+            _filter.FilterIndex = placeHolder.Length-1;
+            _filter.AttachToBase(this);
+        }
     }
     
     public ModuleBase MakeNoise()
@@ -243,21 +266,132 @@ public abstract class NoiseJoiner
 }
 
 /// <summary>
-/// Abs(ModuleBase input)
-/// Clamp
-/// Exponent
-/// Invert
-/// rotate
-/// Scale
-/// ScaleBias
-/// Terrace
-/// Translate
+
 /// Turbulence
 /// </summary>
 public abstract class NoiseFilter
 {
-    public int mode;
+    NoiseFunction Attached { get; set; }
+    bool FilterEnabled { get; set; }
+    public int FilterIndex { get; set; }
+    public NoiseFilter()
+    {
+        FilterEnabled = false;
+        Attached = null;
+    }
+
+    abstract public ModuleBase RunFilter(ModuleBase _mBase);
+
+    public void AttachToBase(NoiseFunction _noiseFunc)
+    {
+        Attached = _noiseFunc;
+    }
 }
+
+/// <summary>
+/// turbulance needs to be split in two
+/// </summary>
+public class TurbulenceFilter : NoiseFilter
+{
+    double Power { get; set; }
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Turbulence(Power, _mBase);
+    }
+}
+
+public class TranslateFilter : NoiseFilter
+{
+    double X { get; set; }
+    double Y { get; set; }
+    double Z { get; set; }
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Translate(X, Y, Z, _mBase);
+    }
+}
+
+public class TerraceFilter : NoiseFilter
+{
+    bool Inverted { get; set; }
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+       return new Terrace(Inverted, _mBase);
+    }
+}
+
+public class ScaleBiasFilter: NoiseFilter
+{
+    double _Scale { get; set; }
+    double _Bias  { get; set; }
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new ScaleBias(_Scale, _Bias, _mBase);
+    }
+}
+
+public class ScaleFilter : NoiseFilter
+{
+    double X { get; set; }
+    double Y { get; set; }
+    double Z { get; set; }
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Scale(X, Y, Z, _mBase);
+    }
+}
+
+public class RotateFilter : NoiseFilter
+{
+    double X { get; set; }
+    double Y { get; set; }
+    double Z { get; set; }
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Rotate(X,Y,Z,_mBase);
+    }
+}
+
+public class ABSFilter : NoiseFilter
+{
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Abs(_mBase);
+    }   
+
+}
+
+public class ClampFilter : NoiseFilter
+{
+    double MinValue { get; set; }
+    double MaxValue { get; set; }
+    
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Clamp(MinValue,MaxValue,_mBase);
+    }
+
+}
+
+public class ExponentFilter : NoiseFilter
+{
+    double CoEfficient { get; set; }
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Exponent(CoEfficient, _mBase);
+    }
+
+}
+
+public class InvertFilter : NoiseFilter
+{
+    public override ModuleBase RunFilter(ModuleBase _mBase)
+    {
+        return new Invert( _mBase);
+    }
+
+}
+
 
 /// <summary>
 /// Curve is going to need it's own custom implementation.

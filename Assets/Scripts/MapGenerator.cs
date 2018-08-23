@@ -89,7 +89,6 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     public void GenerateMap()
     {
-
         #region variables and setup
 
         //This function prevents the generation from happening if there is no noise stack to process.
@@ -452,6 +451,8 @@ public class MapGenerator : MonoBehaviour
         }
     }
     #endregion
+
+    
 
 }
 
