@@ -21,23 +21,23 @@ public static class NoiseProcessor
             }
             else if (noiseStack[i].enabled)
             {
-                if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Power)
+                if (noiseStack[i].Blend == NoiseFunction.BlendMode.Power)
                 {
                     _baseModule = new Power(_baseModule, noiseStack[i].MakeNoise());
                 }
-                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Subtract)
+                else if (noiseStack[i].Blend == NoiseFunction.BlendMode.Subtract)
                 {
                     _baseModule = new Subtract(_baseModule, noiseStack[i].MakeNoise());
                 }
-                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Max)
+                else if (noiseStack[i].Blend == NoiseFunction.BlendMode.Max)
                 {
                     _baseModule = new Max(_baseModule, noiseStack[i].MakeNoise());
                 }
-                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Min)
+                else if (noiseStack[i].Blend == NoiseFunction.BlendMode.Min)
                 {
                     _baseModule = new Min(_baseModule, noiseStack[i].MakeNoise());
                 }
-                else if (noiseStack[i].blendMode == NoiseFunction.BlendMode.Multiply)
+                else if (noiseStack[i].Blend == NoiseFunction.BlendMode.Multiply)
                 {
                     _baseModule = new Multiply(_baseModule, noiseStack[i].MakeNoise());
                 }

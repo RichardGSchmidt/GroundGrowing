@@ -115,7 +115,7 @@ public class Note
     private void ProcessContextMenu()
     {
         GenericMenu genericMenu = new GenericMenu();
-        genericMenu.AddItem(new GUIContent("Remove Node"), false, OnClickRemoveNote);
+        genericMenu.AddItem(new GUIContent("Remove Noise"), false, OnClickRemoveNote);
         genericMenu.ShowAsContext();
     }
 
@@ -138,7 +138,7 @@ public class Note
         Rect quaRect = new Rect(rect.x + 10f, rect.y + 10*yInterval, 400f, 20f);
         Rect bleRect = new Rect(rect.x+10f,rect.y+11*yInterval,400f,20f);
         Rect perRect = new Rect(rect.x + 10f, rect.y + 6*yInterval, 400f, 20f);
-
+        rect = new Rect(rect.x, rect.y, 500f, 200f);
         #region Perlin Function UI
         if (_Noise.type == NoiseFunction.NoiseType.Perlin)
         {
@@ -149,7 +149,7 @@ public class Note
             _Noise.persistence = (double)EditorGUI.Slider(perRect,"Persistence", (float)_Noise.persistence, 0f, 1f);
             _Noise.octaves = EditorGUI.IntSlider(octRect, "Octaves", _Noise.octaves, 0, 18);
             _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(quaRect, "Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect, "Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect, "Blend Mode", _Noise.Blend);
         }
         #endregion
 
@@ -163,7 +163,7 @@ public class Note
             _Noise.persistence = (double)EditorGUI.Slider(perRect,"Persistence", (float)_Noise.persistence, 0f, 1f);
             _Noise.octaves = EditorGUI.IntSlider(octRect, "Octaves", _Noise.octaves, 0, 18);
             _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(quaRect, "Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect, "Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect, "Blend Mode", _Noise.Blend);
         }
         #endregion
 
@@ -175,7 +175,7 @@ public class Note
             _Noise.frequency = (double)EditorGUI.Slider(freqRect,"Frequency", (float)_Noise.frequency, 0f, 20f);
             _Noise.displacement = (double)EditorGUI.Slider(lacRect,"Displacement", (float)_Noise.displacement, 0f, 20f);
             _Noise.distance = EditorGUI.ToggleLeft(octRect,"Use Distance", _Noise.distance);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect,"Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect,"Blend Mode", _Noise.Blend);
 
         }
         #endregion
@@ -190,7 +190,7 @@ public class Note
             _Noise.lacunarity = (double)EditorGUI.Slider(lacRect,"Lacunarity", (float)_Noise.lacunarity, 1.5000000f, 3.5000000f);
             _Noise.octaves = EditorGUI.IntSlider(octRect, "Octaves", _Noise.octaves, 0, 18);
             _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(quaRect,"Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect,"Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect,"Blend Mode", _Noise.Blend);
 
         }
         #endregion
@@ -198,7 +198,6 @@ public class Note
         #region None UI
         else if (_Noise.type == NoiseFunction.NoiseType.None)
         {
-            rect = new Rect(rect.x, rect.y, 500f, 200f); 
             _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(typeRect, _Noise.type);
 
         }

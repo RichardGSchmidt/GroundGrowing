@@ -24,7 +24,7 @@ public class NoiseFunction
     //public float noiseScale = 0.5f;
     public NoiseType type = NoiseType.Perlin;
     public bool enabled = false;
-    public NoiseFunction noiseParent;
+    public NoiseFunction noiseChild;
     public NoiseFilter[] linkedFilters = null;
 
     [Range(0f, 20f)]
@@ -36,7 +36,7 @@ public class NoiseFunction
     [Range(1, 18)]
     public int octaves;
     public int seed;
-    public BlendMode blendMode;
+    public BlendMode Blend { get; set; }
     public QualityMode qualityMode;
 
     public double displacement;
@@ -44,6 +44,7 @@ public class NoiseFunction
 
     public NoiseFunction()
     {
+
         type = NoiseType.None;
         enabled = true;
         frequency = 1;
@@ -53,8 +54,10 @@ public class NoiseFunction
         qualityMode = QualityMode.Low;
         displacement = 1;
         distance = true;
-        blendMode = BlendMode.Add;
-
+        Blend = BlendMode.Add;
+        linkedFilters= null;
+        noiseChild = null;
+        GetDefault();
     }
 
     public void GetDefault()
@@ -68,7 +71,7 @@ public class NoiseFunction
         qualityMode = QualityMode.Low;
         displacement = 1;
         distance = true;
-        blendMode = BlendMode.Add;
+        Blend = BlendMode.Add;
     }
 
     public void AttachFilter(NoiseFilter _filter)
@@ -95,13 +98,49 @@ public class NoiseFunction
     
     public ModuleBase MakeNoise()
     {
-        //this function builds the base module out of the noise function that calls it.
+        //this function builds the base module out of the noise function that calls it, lets make it recursive
         ModuleBase _baseModule = null;
+        ModuleBase _childBase = null;
         if (type == NoiseType.Billow) { _baseModule = new Billow(frequency, lacunarity, persistence, octaves, seed, qualityMode); }
         else if (type == NoiseType.Perlin) { _baseModule = new Perlin(frequency, lacunarity, persistence, octaves, seed, qualityMode); }
         else if (type == NoiseType.Voronoi) { _baseModule = new Voronoi(frequency, displacement, seed, distance); }
         else if (type == NoiseType.RidgedMultifractal) { _baseModule = new RidgedMultifractal(frequency, lacunarity, octaves, seed, qualityMode); }
+        if (noiseChild != null)
+        {
+            _childBase = noiseChild.MakeNoise();
+                                    
+
+            if (noiseChild.Blend == NoiseFunction.BlendMode.Power)
+            {
+                _baseModule = new Power(_baseModule, noiseChild.MakeNoise());
+            }
+            else if (noiseChild.Blend == NoiseFunction.BlendMode.Subtract)
+            {
+                _baseModule = new Subtract(_baseModule, noiseChild.MakeNoise());
+            }
+            else if (noiseChild.Blend == NoiseFunction.BlendMode.Max)
+            {
+                _baseModule = new Max(_baseModule, noiseChild.MakeNoise());
+            }
+            else if (noiseChild.Blend == NoiseFunction.BlendMode.Min)
+            {
+                _baseModule = new Min(_baseModule, noiseChild.MakeNoise());
+            }
+            else if (noiseChild.Blend == NoiseFunction.BlendMode.Multiply)
+            {
+                _baseModule = new Multiply(_baseModule, noiseChild.MakeNoise());
+            }
+            else
+            {
+                _baseModule = new Add(_baseModule, noiseChild.MakeNoise());
+            }
+            
+        }
+
+        
+        
         return _baseModule;
+        
     }
 
     #region Noise Functions Preset Handling
@@ -148,27 +187,27 @@ public class NoiseFunction
 
         if (presets.blendMode == NoisePresets.BlendMode.Subtract)
         {
-            blendMode = BlendMode.Subtract;
+            Blend = BlendMode.Subtract;
         }
         else if (presets.blendMode == NoisePresets.BlendMode.Max)
         {
-            blendMode = BlendMode.Max;
+            Blend = BlendMode.Max;
         }
         else if (presets.blendMode == NoisePresets.BlendMode.Min)
         {
-            blendMode = BlendMode.Min;
+            Blend = BlendMode.Min;
         }
         else if (presets.blendMode == NoisePresets.BlendMode.Multiply)
         {
-            blendMode = BlendMode.Multiply;
+            Blend = BlendMode.Multiply;
         }
         else if (presets.blendMode == NoisePresets.BlendMode.Power)
         {
-            blendMode = BlendMode.Power;
+            Blend = BlendMode.Power;
         }
         else
         {
-            blendMode = BlendMode.Add;
+            Blend = BlendMode.Add;
         }
 
 
@@ -222,23 +261,23 @@ public class NoiseFunction
             preset.noiseType = NoisePresets.NoiseType.None;
         }
 
-        if (blendMode == BlendMode.Subtract)
+        if (Blend == BlendMode.Subtract)
         {
             preset.blendMode = NoisePresets.BlendMode.Subtract;
         }
-        else if (blendMode == BlendMode.Power)
+        else if (Blend == BlendMode.Power)
         {
             preset.blendMode = NoisePresets.BlendMode.Power;
         }
-        else if (blendMode == BlendMode.Multiply)
+        else if (Blend == BlendMode.Multiply)
         {
             preset.blendMode = NoisePresets.BlendMode.Multiply;
         }
-        else if (blendMode == BlendMode.Min)
+        else if (Blend == BlendMode.Min)
         {
             preset.blendMode = NoisePresets.BlendMode.Min;
         }
-        else if (blendMode == BlendMode.Max)
+        else if (Blend == BlendMode.Max)
         {
             preset.blendMode = NoisePresets.BlendMode.Max;
         }
@@ -257,6 +296,7 @@ public class NoiseFunction
 /// Blend(ModuleBase lhs, ModuleBase rhs, ModuleBase controller)
 /// Displace (4) 1 input 3 mutators
 /// Select(ModuleBase inputA, ModuleBase inputB, ModuleBase controller)
+/// Turbulence
 /// </summary>
 public abstract class NoiseJoiner
 {

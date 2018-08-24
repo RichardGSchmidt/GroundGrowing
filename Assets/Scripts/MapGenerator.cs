@@ -53,7 +53,8 @@ public class MapGenerator : MonoBehaviour
 
     #region Private / Hidden values
 
-
+    [HideInInspector]
+    public NoiseFunction EntryPoint { get; set; }
     private int latestTimeProcessRequested;
     private Noise2D noiseMap = null;
     [HideInInspector]
@@ -76,6 +77,7 @@ public class MapGenerator : MonoBehaviour
     private ModuleBase baseModule = null;
     #endregion
 
+    
     #region Map Generator
     /// <summary>
     /// The Core Map Generation Method, in essence this method
@@ -87,6 +89,80 @@ public class MapGenerator : MonoBehaviour
 
     /// -RGS
     /// </summary>
+    /// 
+    public void GroundGrowing()
+    {
+        ///</summary>
+        ///Things I need to add:
+        ///GenarateMap(ModuleBase);
+        //
+
+
+        #region variables and setup
+
+
+        //this is the base noise module that will be manipulated 
+        baseModule = null;
+
+        //this is the noisemap that will be generated
+        noiseMap = null;
+
+
+        ///next two commands interface with multithreaded renderer
+        ///to shut it down if it's running.  The bool adds a hard 
+        ///abort check that doesn't rely on the timestamp
+
+        HaltThreads();
+        reset = true;
+
+        //misc Setup
+        MapDisplay display = FindObjectOfType<MapDisplay>();
+
+        #endregion
+
+        #region Noise Map Initialization
+
+        //Generates a random seed and passes it to the noise processor
+        if (!useRandomSeed) { seedValue = seed.GetHashCode(); }
+        else seedValue = UnityEngine.Random.Range(0, 10000000);
+        EntryPoint = new NoiseFunction();
+        baseModule = EntryPoint.MakeNoise();
+
+
+        
+        noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
+
+        #endregion
+
+        #region Planet Generator Setup
+        if (mapType == MapType.Planet)
+        {
+            mapHeight = mapWidth / 2;
+            renderType = RenderType.Color;
+
+            if ((oceans) && (!waterMesh.activeSelf))
+            {
+                waterMesh.SetActive(true);
+            }
+            if (waterMesh != null)
+            {
+                waterMesh.transform.localScale = 2 * (new Vector3(radius + seaLevelOffset, radius + seaLevelOffset, radius + seaLevelOffset));
+
+                if (!oceans)
+                {
+                    waterMesh.SetActive(false);
+                }
+            }
+        }
+        #endregion
+
+        #region Start Multithreaded Noisemapping
+        if (multithreading) { ThreadMap(); }
+
+        #endregion
+    }
+
+
     public void GenerateMap()
     {
         ///</summary>

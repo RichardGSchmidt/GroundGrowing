@@ -2,6 +2,7 @@
 using UnityEngine;
 
 public enum ConnectionPointType { In, Out }
+///end goal { noiseIn, noiseOut,  FilterLink, perlinOnly}
 
 public class ConnectionPoint
 {

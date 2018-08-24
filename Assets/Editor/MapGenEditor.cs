@@ -61,7 +61,7 @@ public class MapGenEditor : Editor {
         #endregion
         TerrainFoldout(ref mapGen);
         NoiseFunctionFoldout(ref mapGen);      
-        if (GUILayout.Button("Generate")){mapGen.GenerateMap();}
+        if (GUILayout.Button("Generate")){mapGen.GroundGrowing();}
 
     }
 
@@ -210,7 +210,7 @@ public class MapGenEditor : Editor {
             noiseFunc.persistence = (double)EditorGUILayout.Slider("Persistence", (float)noiseFunc.persistence, -1f, 1f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
-            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
                 NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
@@ -233,7 +233,7 @@ public class MapGenEditor : Editor {
             noiseFunc.persistence = (double)EditorGUILayout.Slider("Persistence", (float)noiseFunc.persistence, 0f, 1f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
-            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
                 NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
@@ -254,7 +254,7 @@ public class MapGenEditor : Editor {
             noiseFunc.frequency = (double)EditorGUILayout.Slider("Frequency", (float)noiseFunc.frequency, 0f, 20f);
             noiseFunc.displacement = (double)EditorGUILayout.Slider("Displacement", (float)noiseFunc.displacement, 0f, 20f);
             noiseFunc.distance = EditorGUILayout.ToggleLeft("Use Distance", noiseFunc.distance);
-            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
                 NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
@@ -278,7 +278,7 @@ public class MapGenEditor : Editor {
             noiseFunc.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)noiseFunc.lacunarity, 1.5000000f, 3.5000000f);
             noiseFunc.octaves = EditorGUILayout.IntSlider("Octaves", noiseFunc.octaves, 0, 18);
             noiseFunc.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", noiseFunc.qualityMode);
-            noiseFunc.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.blendMode);
+            noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
                 NoiseFunction[] placeHolder = new NoiseFunction[generator.noiseFunctions.Length - 1];
@@ -332,7 +332,7 @@ public class MapGenEditor : Editor {
             _Noise.persistence = (double)EditorGUILayout.Slider("Persistence", (float)_Noise.persistence, -1f, 1f);
             _Noise.octaves = EditorGUILayout.IntSlider("Octaves", _Noise.octaves, 0, 18);
             _Noise.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.Blend);
         }
         #endregion
 
@@ -350,7 +350,7 @@ public class MapGenEditor : Editor {
             _Noise.persistence = (double)EditorGUILayout.Slider("Persistence", (float)_Noise.persistence, 0f, 1f);
             _Noise.octaves = EditorGUILayout.IntSlider("Octaves", _Noise.octaves, 0, 18);
             _Noise.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.Blend);
      
         }
         #endregion
@@ -366,7 +366,7 @@ public class MapGenEditor : Editor {
             _Noise.frequency = (double)EditorGUILayout.Slider("Frequency", (float)_Noise.frequency, 0f, 20f);
             _Noise.displacement = (double)EditorGUILayout.Slider("Displacement", (float)_Noise.displacement, 0f, 20f);
             _Noise.distance = EditorGUILayout.ToggleLeft("Use Distance", _Noise.distance);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.Blend);
             
         }
         #endregion
@@ -384,7 +384,7 @@ public class MapGenEditor : Editor {
             _Noise.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)_Noise.lacunarity, 1.5000000f, 3.5000000f);
             _Noise.octaves = EditorGUILayout.IntSlider("Octaves", _Noise.octaves, 0, 18);
             _Noise.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.blendMode);
+            _Noise.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.Blend);
             
         }
         #endregion
