@@ -129,54 +129,53 @@ public class Note
 
     public void GetInspectorElements(NoiseFunction _Noise)
     {
+        const float yInterval = 15f;
+        Rect typeRect = new Rect(rect.x + 10f, rect.y + yInterval, 175f, 20f);
+        Rect enabledRect = new Rect(rect.x + 350f, rect.y + 2*yInterval, 10f, 20f);
+        Rect freqRect = new Rect(rect.x + 10f, rect.y + 3*yInterval, 400f, 20f);
+        Rect lacRect = new Rect(rect.x + 10f, rect.y + 4*yInterval, 400f, 20f);
+        Rect octRect = new Rect(rect.x + 10f, rect.y + 5*yInterval, 400f, 20f);
+        Rect quaRect = new Rect(rect.x + 10f, rect.y + 10*yInterval, 400f, 20f);
+        Rect bleRect = new Rect(rect.x+10f,rect.y+11*yInterval,400f,20f);
+        Rect perRect = new Rect(rect.x + 10f, rect.y + 6*yInterval, 400f, 20f);
+
         #region Perlin Function UI
         if (_Noise.type == NoiseFunction.NoiseType.Perlin)
         {
-
-            string name = "Perlin Noise";
-            
-            GUILayout.Label(name);
-            _Noise.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", _Noise.type);
-            _Noise.enabled = EditorGUILayout.ToggleLeft("Enabled", _Noise.enabled);
-            _Noise.frequency = (double)EditorGUILayout.Slider("Frequency", (float)_Noise.frequency, -20f, 20f);
-            _Noise.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)_Noise.lacunarity, -2.0000000f, 2.5000000f);
-            _Noise.persistence = (double)EditorGUILayout.Slider("Persistence", (float)_Noise.persistence, -1f, 1f);
-            _Noise.octaves = EditorGUILayout.IntSlider("Octaves", _Noise.octaves, 0, 18);
-            _Noise.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.blendMode);
+            _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(typeRect, _Noise.type);
+            _Noise.enabled = EditorGUI.ToggleLeft(enabledRect, "Enabled", _Noise.enabled);
+            _Noise.frequency = (double)EditorGUI.Slider(freqRect,"Frequency", (float)_Noise.frequency, 0f, 20f);
+            _Noise.lacunarity = (double)EditorGUI.Slider(lacRect,"Lacunarity", (float)_Noise.lacunarity, 0f, 1.5000000f);
+            _Noise.persistence = (double)EditorGUI.Slider(perRect,"Persistence", (float)_Noise.persistence, 0f, 1f);
+            _Noise.octaves = EditorGUI.IntSlider(octRect, "Octaves", _Noise.octaves, 0, 18);
+            _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(quaRect, "Quality Mode", _Noise.qualityMode);
+            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect, "Blend Mode", _Noise.blendMode);
         }
         #endregion
 
         #region Billow Function UI
         else if (_Noise.type == NoiseFunction.NoiseType.Billow)
         {
-
-            string name = "Billow Noise";
-            EditorGUILayout.LabelField(name);
-            _Noise.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", _Noise.type);
-            _Noise.enabled = EditorGUILayout.ToggleLeft("Enabled", _Noise.enabled);
-            _Noise.frequency = (double)EditorGUILayout.Slider("Frequency", (float)_Noise.frequency, 0f, 20f);
-            _Noise.lacunarity = (double)EditorGUILayout.Slider("Lacunarity", (float)_Noise.lacunarity, 1.5000000f, 3.5000000f);
-            _Noise.persistence = (double)EditorGUILayout.Slider("Persistence", (float)_Noise.persistence, 0f, 1f);
-            _Noise.octaves = EditorGUILayout.IntSlider("Octaves", _Noise.octaves, 0, 18);
-            _Noise.qualityMode = (LibNoise.QualityMode)EditorGUILayout.EnumPopup("Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.blendMode);
-
+            _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(typeRect, _Noise.type);
+            _Noise.enabled = EditorGUI.ToggleLeft(enabledRect,"Enabled", _Noise.enabled);
+            _Noise.frequency = (double)EditorGUI.Slider(freqRect, "Frequency", (float)_Noise.frequency, 0f, 20f);
+            _Noise.lacunarity = (double)EditorGUI.Slider(lacRect, "Lacunarity", (float)_Noise.lacunarity, 1.5f, 3.5f);
+            _Noise.persistence = (double)EditorGUI.Slider(perRect,"Persistence", (float)_Noise.persistence, 0f, 1f);
+            _Noise.octaves = EditorGUI.IntSlider(octRect, "Octaves", _Noise.octaves, 0, 18);
+            _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(quaRect, "Quality Mode", _Noise.qualityMode);
+            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect, "Blend Mode", _Noise.blendMode);
         }
         #endregion
 
         #region Voronoi UI
         else if (_Noise.type == NoiseFunction.NoiseType.Voronoi)
         {
-            EditorGUILayout.Space();
-            string name = "Voronoi Noise";
-            EditorGUILayout.LabelField(name);
-            _Noise.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", _Noise.type);
-            _Noise.enabled = EditorGUILayout.ToggleLeft("Enabled", _Noise.enabled);
-            _Noise.frequency = (double)EditorGUILayout.Slider("Frequency", (float)_Noise.frequency, 0f, 20f);
-            _Noise.displacement = (double)EditorGUILayout.Slider("Displacement", (float)_Noise.displacement, 0f, 20f);
-            _Noise.distance = EditorGUILayout.ToggleLeft("Use Distance", _Noise.distance);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", _Noise.blendMode);
+            _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(typeRect, _Noise.type);
+            _Noise.enabled = EditorGUI.ToggleLeft(enabledRect,"Enabled", _Noise.enabled);
+            _Noise.frequency = (double)EditorGUI.Slider(freqRect,"Frequency", (float)_Noise.frequency, 0f, 20f);
+            _Noise.displacement = (double)EditorGUI.Slider(lacRect,"Displacement", (float)_Noise.displacement, 0f, 20f);
+            _Noise.distance = EditorGUI.ToggleLeft(octRect,"Use Distance", _Noise.distance);
+            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect,"Blend Mode", _Noise.blendMode);
 
         }
         #endregion
@@ -184,15 +183,14 @@ public class Note
         #region Ridged Multifractal UI
         else if (_Noise.type == NoiseFunction.NoiseType.RidgedMultifractal)
         {
-            string name = "Ridged Multifractal";
-            EditorGUI.LabelField(rect, name);
-            _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(rect,"Type of Noise", _Noise.type);
-            _Noise.enabled = EditorGUI.ToggleLeft(rect,"Enabled", _Noise.enabled);
-            _Noise.frequency = (double)EditorGUI.Slider(rect,"Frequency", (float)_Noise.frequency, 0f, 20f);
-            _Noise.lacunarity = (double)EditorGUI.Slider(rect,"Lacunarity", (float)_Noise.lacunarity, 1.5000000f, 3.5000000f);
-            _Noise.octaves = EditorGUI.IntSlider(rect, "Octaves", _Noise.octaves, 0, 18);
-            _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(rect,"Quality Mode", _Noise.qualityMode);
-            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(rect,"Blend Mode", _Noise.blendMode);
+
+            _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(typeRect, _Noise.type);
+            _Noise.enabled = EditorGUI.ToggleLeft(enabledRect,"Enabled", _Noise.enabled);
+            _Noise.frequency = (double)EditorGUI.Slider(freqRect,"Frequency", (float)_Noise.frequency, 0f, 20f);
+            _Noise.lacunarity = (double)EditorGUI.Slider(lacRect,"Lacunarity", (float)_Noise.lacunarity, 1.5000000f, 3.5000000f);
+            _Noise.octaves = EditorGUI.IntSlider(octRect, "Octaves", _Noise.octaves, 0, 18);
+            _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(quaRect,"Quality Mode", _Noise.qualityMode);
+            _Noise.blendMode = (NoiseFunction.BlendMode)EditorGUI.EnumPopup(bleRect,"Blend Mode", _Noise.blendMode);
 
         }
         #endregion
@@ -200,14 +198,13 @@ public class Note
         #region None UI
         else if (_Noise.type == NoiseFunction.NoiseType.None)
         {
-
-            string name = "None";
-            GUI.Label(rect,name);
-            _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(rect,"Type of Noise", _Noise.type);
+            rect = new Rect(rect.x, rect.y, 500f, 200f); 
+            _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(typeRect, _Noise.type);
 
         }
 
         #endregion
+
     }
 }
 
