@@ -79,6 +79,7 @@ public class MapGenerator : MonoBehaviour
 
     
     #region Map Generator
+
     /// <summary>
     /// The Core Map Generation Method, in essence this method
     /// takes the stack of noise methods and processes them

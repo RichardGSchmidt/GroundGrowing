@@ -9,15 +9,19 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
+[CustomEditor(typeof(MapGenerator))]
 public class ContraOctave : EditorWindow
 {
     private List<Note> notes;
     private List<Connection> connections;
+    private EditorEngine engy;
+    public MapGenerator MapGen { get; set; }
 
     private GUIStyle nodeStyle;
     private GUIStyle selectedNodeStyle;
     private GUIStyle inPointStyle;
     private GUIStyle outPointStyle;
+
 
     private ConnectionPoint selectedInPoint;
     private ConnectionPoint selectedOutPoint;
@@ -28,8 +32,10 @@ public class ContraOctave : EditorWindow
     [MenuItem("Window/Note Based Editor")]
     public static void ShowWindow()
     {
+        
         ContraOctave window = GetWindow<ContraOctave>();
         window.titleContent = new GUIContent("Note Based Editor");
+  
     }
 
     private void OnEnable()
@@ -51,6 +57,9 @@ public class ContraOctave : EditorWindow
         outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
         outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
         outPointStyle.border = new RectOffset(4, 4, 12, 12);
+
+        MapGen = FindObjectOfType<MapGenerator>();
+
     }
 
     private void OnGUI()
@@ -60,6 +69,7 @@ public class ContraOctave : EditorWindow
 
         DrawNodes();
         DrawConnections();
+        DrawEngine();
 
         DrawConnectionLine(Event.current);
 
@@ -94,6 +104,8 @@ public class ContraOctave : EditorWindow
         Handles.EndGUI();
     }
 
+
+
     private void DrawNodes()
     {
         if (notes != null)
@@ -115,6 +127,14 @@ public class ContraOctave : EditorWindow
             }
         }
     }
+
+    private void DrawEngine()
+    {if (engy != null)
+        {
+            engy.Draw();
+        }
+    }
+
 
     private void ProcessEvents(Event e)
     {
@@ -195,7 +215,11 @@ public class ContraOctave : EditorWindow
     private void ProcessContextMenu(Vector2 mousePosition)
     {
         GenericMenu genericMenu = new GenericMenu();
-        genericMenu.AddItem(new GUIContent("Add note"), false, () => OnClickAddNode(mousePosition));
+        if(engy==null)
+        {
+            genericMenu.AddItem(new GUIContent("Add Engine"), false, () => OnClickAddEngine(mousePosition));
+        }
+        genericMenu.AddItem(new GUIContent("Add noise"), false, () => OnClickAddNode(mousePosition));
         genericMenu.ShowAsContext();
     }
 
@@ -222,6 +246,11 @@ public class ContraOctave : EditorWindow
         }
 
         notes.Add(new Note(mousePosition, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
+    }
+
+    private void OnClickAddEngine(Vector2 mousePosition)
+    {
+        engy = new EditorEngine(mousePosition, 200, 50, MapGen,nodeStyle, selectedNodeStyle, inPointStyle, OnClickInPoint);
     }
 
     private void OnClickInPoint(ConnectionPoint inPoint)
