@@ -27,8 +27,6 @@ public class Note
 
     public Action<Note> OnRemoveNote;
 
-    public Note() { }
-
     public Note(
         Vector2 position,
         float width,
@@ -58,7 +56,7 @@ public class Note
         rect.position += delta;
     }
 
-    public virtual void Draw()
+    public void Draw()
     {
         inPoint.Draw();
         outPoint.Draw();
@@ -114,7 +112,7 @@ public class Note
         return false;
     }
 
-    public virtual void ProcessContextMenu()
+    private void ProcessContextMenu()
     {
         GenericMenu genericMenu = new GenericMenu();
         genericMenu.AddItem(new GUIContent("Remove Noise"), false, OnClickRemoveNote);
