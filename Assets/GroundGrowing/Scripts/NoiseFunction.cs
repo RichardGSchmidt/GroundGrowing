@@ -60,6 +60,45 @@ public class NoiseFunction
         GetDefault();
     }
 
+    public void AddChild()
+    {
+        noiseChild = new NoiseFunction();
+    }
+
+    public void AddChild(NoiseFunction noiseIn)
+    {
+        noiseChild = noiseIn;
+    }
+
+    public void AddChild(NoisePresets presetIn)
+    {
+        noiseChild = new NoiseFunction(presetIn);
+    }
+
+    public void AddChild(NoiseType _noiseType, bool _enabled, double _frequency,double _lacunarity, double _persistance, int _octaves, QualityMode _qMode, double _displacement,bool _distance,BlendMode _blendmode)
+    {
+        type = _noiseType;
+        enabled = _enabled;
+        frequency = _frequency;
+        lacunarity = _lacunarity;
+        persistence = _persistance;
+        octaves = _octaves;
+        qualityMode = _qMode;
+        displacement = _displacement;
+        distance = _distance;
+        Blend = _blendmode;
+    }
+
+    public void RemoveChild()
+    {
+        if (noiseChild.noiseChild != null)
+        {
+            noiseChild = noiseChild.noiseChild;
+        }
+        else noiseChild = null;
+
+    }
+
     public void GetDefault()
     {
         type = NoiseType.Perlin;
