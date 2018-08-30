@@ -12,6 +12,8 @@ public class ConnectionPoint
 
     public Note note;
 
+    public Listener listenerTemplate;
+
     public GUIStyle style;
 
     public Action<ConnectionPoint> OnClickConnectionPoint;
@@ -24,6 +26,17 @@ public class ConnectionPoint
         this.OnClickConnectionPoint = OnClickConnectionPoint;
         rect = new Rect(0, 0, 10f, 20f);
     }
+
+    public ConnectionPoint(Listener listener, ConnectionPointType type, GUIStyle style, Action<ConnectionPoint>OnClickConnectionPoint)
+    {
+        this.listenerTemplate = listener;
+        this.type = type;
+        this.style = style;
+        this.OnClickConnectionPoint = OnClickConnectionPoint;
+        rect = new Rect(0, 0, 200, 100);
+
+    }
+
 
     public void Draw()
     {

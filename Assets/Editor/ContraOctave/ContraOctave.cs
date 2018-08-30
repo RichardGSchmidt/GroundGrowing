@@ -13,6 +13,9 @@ public class ContraOctave : EditorWindow
 {
     private List<Note> notes;
     private List<Connection> connections;
+    private Listener coListener;
+
+    private MapGenerator coMapGen;
 
     private GUIStyle nodeStyle;
     private GUIStyle selectedNodeStyle;
@@ -196,6 +199,7 @@ public class ContraOctave : EditorWindow
     {
         GenericMenu genericMenu = new GenericMenu();
         genericMenu.AddItem(new GUIContent("Add note"), false, () => OnClickAddNode(mousePosition));
+        genericMenu.AddItem(new GUIContent("Add listener"), false, () => OnClickAddListener(mousePosition));
         genericMenu.ShowAsContext();
     }
 
@@ -212,6 +216,19 @@ public class ContraOctave : EditorWindow
         }
 
         GUI.changed = true;
+    }
+
+    private void OnGenerate()
+    {
+        if (coMapGen != null)
+        {
+            coMapGen.GenerateMap();
+        }
+    }
+
+    private void OnClickAddListener(Vector2 mousePostion)
+    {
+        //coListener = new Listener(mousePostion, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, OnClickInPoint, OnGenerate, coMapGen);
     }
 
     private void OnClickAddNode(Vector2 mousePosition)

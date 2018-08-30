@@ -139,7 +139,7 @@ public class MapGenEditor : Editor {
         showNoiseFunctions = EditorGUILayout.Foldout(showNoiseFunctions, "Noise Functions");
         if (showNoiseFunctions)
         {
-            if (GUILayout.Button("Open Noise Designer")) { ContraOctave.ShowWindow(); }
+            if (GUILayout.Button("Open ContraOctave")) { ContraOctave.ShowWindow(); }
 
             if (GUILayout.Button("Add New Noise Function"))
             {

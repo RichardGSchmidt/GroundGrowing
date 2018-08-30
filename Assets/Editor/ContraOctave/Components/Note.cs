@@ -129,6 +129,7 @@ public class Note
 
     public void GetInspectorElements(NoiseFunction _Noise)
     {
+        #region Default window setup
         const float yInterval = 15f;
         Rect typeRect = new Rect(rect.x + 10f, rect.y + yInterval, 175f, 20f);
         Rect enabledRect = new Rect(rect.x + 350f, rect.y + 2*yInterval, 10f, 20f);
@@ -139,6 +140,8 @@ public class Note
         Rect bleRect = new Rect(rect.x+10f,rect.y+11*yInterval,400f,20f);
         Rect perRect = new Rect(rect.x + 10f, rect.y + 6*yInterval, 400f, 20f);
         rect = new Rect(rect.x, rect.y, 500f, 200f);
+        #endregion
+
         #region Perlin Function UI
         if (_Noise.type == NoiseFunction.NoiseType.Perlin)
         {
