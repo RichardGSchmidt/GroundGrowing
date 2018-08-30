@@ -12,7 +12,7 @@ public class Listener
     public bool isDragged;
     public bool isSelected;
 
-    public ConnectionPoint inPoint;
+    public ConnectionPoint listenPoint;
 
     public GUIStyle style;
     public GUIStyle defaultListenerStyle;
@@ -27,9 +27,8 @@ public class Listener
         float height,
         GUIStyle listenStyle,
         GUIStyle selectedStyle,
-        GUIStyle inPointStyle,
-        Action<ConnectionPoint> onClickInPoint,
-        Action<Listener> GenMap,
+        GUIStyle listenPointStyle,
+        Action<ConnectionPoint> onClickListenPoint,
         MapGenerator mapInput
         )
     {
@@ -37,11 +36,10 @@ public class Listener
 
         rect = new Rect(position.x, position.y, width, height);
         style = listenStyle;
+        listenPoint = new ConnectionPoint(this,ConnectionPointType.Listener,listenPointStyle,onClickListenPoint);
         defaultListenerStyle = listenStyle;
         selectedListenerStyle = selectedStyle;
-        inPoint = new ConnectionPoint(this, ConnectionPointType.In, inPointStyle, onClickInPoint);
-        ;
-      
+        
     }
 
     public void Drag(Vector2 delta)
@@ -51,8 +49,71 @@ public class Listener
 
     public void Draw()
     {
-        inPoint.Draw();
+        
+        listenPoint.Draw(this);
         GUI.Box(rect, title, style);
+    }
+
+    public bool ProcessEvents(Event e)
+    {
+        switch (e.type)
+        {
+            case EventType.MouseDown:
+                if (e.button == 0)
+                {
+                    if (rect.Contains(e.mousePosition))
+                    {
+                        isDragged = true;
+                        GUI.changed = true;
+                        isSelected = true;
+                        style = selectedListenerStyle;
+                    }
+                    else
+                    {
+                        GUI.changed = true;
+                        isSelected = false;
+                        style = defaultListenerStyle;
+
+                    }
+                }
+
+                if (e.button == 1 && isSelected && rect.Contains(e.mousePosition))
+                {
+                    ProcessContextMenu();
+                    e.Use();
+                }
+
+                break;
+
+            case EventType.MouseUp:
+                isDragged = false;
+                break;
+
+            case EventType.MouseDrag:
+                if (e.button == 0 && isDragged)
+                {
+                    Drag(e.delta);
+                    e.Use();
+                    return true;
+                }
+                break;
+        }
+        return false;
+    }
+
+    public void ProcessContextMenu()
+    {
+        GenericMenu genericMenu = new GenericMenu();
+        genericMenu.AddDisabledItem(new GUIContent("Generate"));
+        genericMenu.ShowAsContext();
+    }
+
+    private void OnClickGenerateMap()
+    {
+        if (OnGenerate != null)
+        {
+            OnGenerate(this);
+        }
     }
 
     public void GenerateMap()

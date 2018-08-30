@@ -6,12 +6,14 @@ public class Connection
 {
     public ConnectionPoint inPoint;
     public ConnectionPoint outPoint;
+    public ConnectionPoint listenerPoint;
     public Action<Connection> OnClickRemoveConnection;
 
-    public Connection(ConnectionPoint inPoint, ConnectionPoint outPoint, Action<Connection> OnClickRemoveConnection)
+    public Connection(ConnectionPoint inPoint, ConnectionPoint outPoint,ConnectionPoint  lPoint,Action<Connection> OnClickRemoveConnection)
     {
         this.inPoint = inPoint;
         this.outPoint = outPoint;
+        this.listenerPoint = lPoint;
         this.OnClickRemoveConnection = OnClickRemoveConnection;
     }
 

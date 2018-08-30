@@ -20,10 +20,14 @@ public class ContraOctave : EditorWindow
     private GUIStyle nodeStyle;
     private GUIStyle selectedNodeStyle;
     private GUIStyle inPointStyle;
+    private GUIStyle listenerPointStyle;
     private GUIStyle outPointStyle;
 
     private ConnectionPoint selectedInPoint;
     private ConnectionPoint selectedOutPoint;
+    private ConnectionPoint selectedListenPoint;
+
+    private bool ListenerConnected;
 
     private Vector2 offset;
     private Vector2 drag;
@@ -50,6 +54,11 @@ public class ContraOctave : EditorWindow
         inPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
         inPointStyle.border = new RectOffset(4, 4, 12, 12);
 
+        listenerPointStyle = new GUIStyle();
+        listenerPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left.png") as Texture2D;
+        listenerPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn left on.png") as Texture2D;
+        listenerPointStyle.border = new RectOffset(4, 4, 12, 12);
+
         outPointStyle = new GUIStyle();
         outPointStyle.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right.png") as Texture2D;
         outPointStyle.active.background = EditorGUIUtility.Load("builtin skins/darkskin/images/btn right on.png") as Texture2D;
@@ -61,12 +70,14 @@ public class ContraOctave : EditorWindow
         DrawGrid(20, 0.2f, Color.gray);
         DrawGrid(100, 0.4f, Color.gray);
 
+        DrawListener();
         DrawNodes();
         DrawConnections();
 
         DrawConnectionLine(Event.current);
 
         ProcessNodeEvents(Event.current);
+        ProcessListenerEvents(Event.current);
         ProcessEvents(Event.current);
 
         if (GUI.changed) Repaint();
@@ -105,6 +116,14 @@ public class ContraOctave : EditorWindow
             {
                 notes[i].Draw();
             }
+        }
+    }
+
+    private void DrawListener()
+    {
+        if (coListener !=null)
+        {
+            coListener.Draw();
         }
     }
 
@@ -162,6 +181,18 @@ public class ContraOctave : EditorWindow
         }
     }
 
+    private void ProcessListenerEvents(Event e)
+    {
+        if (coListener!=null)
+        {
+            bool guiChanged = coListener.ProcessEvents(e);
+            if (guiChanged)
+            {
+                GUI.changed = true;
+            }
+        }
+    }
+
     private void DrawConnectionLine(Event e)
     {
         if (selectedInPoint != null && selectedOutPoint == null)
@@ -175,6 +206,8 @@ public class ContraOctave : EditorWindow
                 null,
                 2f
             );
+
+            
 
             GUI.changed = true;
         }
@@ -215,20 +248,26 @@ public class ContraOctave : EditorWindow
             }
         }
 
+        if(coListener!=null)
+        {
+            coListener.Drag(delta);
+        }
+
         GUI.changed = true;
     }
 
-    private void OnGenerate()
+    private void OnGenerate(MapGenerator mapGenInput)
     {
-        if (coMapGen != null)
+        if (mapGenInput != null)
         {
-            coMapGen.GenerateMap();
+            mapGenInput.GenerateMap();
         }
+        else return;
     }
 
     private void OnClickAddListener(Vector2 mousePostion)
     {
-        //coListener = new Listener(mousePostion, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, OnClickInPoint, OnGenerate, coMapGen);
+        coListener = new Listener(mousePostion, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, OnClickListenerPoint, coMapGen);
     }
 
     private void OnClickAddNode(Vector2 mousePosition)
@@ -256,6 +295,16 @@ public class ContraOctave : EditorWindow
             {
                 ClearConnectionSelection();
             }
+        }
+    }
+
+    private void OnClickListenerPoint(ConnectionPoint lPoint)
+    {
+        selectedListenPoint = lPoint;
+        if(selectedOutPoint!=null)
+        {
+            CreateConnection();
+            ClearConnectionSelection();
         }
     }
 
@@ -314,7 +363,7 @@ public class ContraOctave : EditorWindow
             connections = new List<Connection>();
         }
 
-        connections.Add(new Connection(selectedInPoint, selectedOutPoint, OnClickRemoveConnection));
+        connections.Add(new Connection(selectedInPoint, selectedOutPoint, selectedListenPoint, OnClickRemoveConnection));
     }
 
     private void ClearConnectionSelection()
