@@ -50,6 +50,10 @@ public static class NoiseProcessor
         return _baseModule;
     }
 
+    public static ModuleBase InitNoise(NoiseFunction inputNoise, int seed)
+    {
+        return inputNoise.MakeNoise();
+    }
 
 }
 

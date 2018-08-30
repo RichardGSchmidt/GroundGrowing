@@ -72,11 +72,12 @@ public class MapGenerator : MonoBehaviour
 
     //hidden in inspector because of custom inspector implementation
     [HideInInspector]
-    public NoiseFunction [] noiseFunctions = null;
+    //public NoiseFunction [] noiseFunctions = null;
 
     private ModuleBase baseModule = null;
     #endregion
 
+    
     
     #region Map Generator
 
@@ -183,11 +184,9 @@ public class MapGenerator : MonoBehaviour
         #region variables and setup
 
         //This function prevents the generation from happening if there is no noise stack to process.
-        if ((noiseFunctions == null)||(noiseFunctions.Length < 1))
+        if (EntryPoint == null)
         {
-            noiseFunctions = new NoiseFunction[1];
-            noiseFunctions[0] = new NoiseFunction();
-            noiseFunctions[0].GetDefault();
+            EntryPoint = new NoiseFunction();
         }
 
         //this is the base noise module that will be manipulated 
@@ -214,7 +213,7 @@ public class MapGenerator : MonoBehaviour
         //Generates a random seed and passes it to the noise processor
         if (!useRandomSeed) { seedValue = seed.GetHashCode(); }
         else seedValue = UnityEngine.Random.Range(0, 10000000);
-        baseModule = NoiseProcessor.InitNoise(noiseFunctions, seedValue);
+        baseModule = NoiseProcessor.InitNoise(EntryPoint, seedValue);
  
         
         //This clamps the module to between 1 and 0, sort of...
@@ -472,12 +471,15 @@ public class MapGenerator : MonoBehaviour
 
     #region File IO
 
-    public void SavePresets(NoiseFunction[] savedPresets, string destpath)//saves the map to a given string location.
+    public void SavePresets(NoiseFunction savedPreset, string destpath)//saves the map to a given string location.
     {
-        NoisePresets[] presetsToSave = new NoisePresets[savedPresets.Length];
-        for (int i = 0; i < savedPresets.Length; i++)
+        NoiseFunction tempNoise;
+        tempNoise = savedPreset;
+        NoisePresets[] presetsToSave = new NoisePresets[savedPreset.GetCount()];
+        for (int i = 0; i < savedPreset.GetCount(); i++)
         {
-            presetsToSave[i] = noiseFunctions[i].GetPresets();
+            presetsToSave[i] = tempNoise.GetPresets();
+            tempNoise = tempNoise.RemoveSelf();
         }
 
         BinaryFormatter bf = new BinaryFormatter();
@@ -512,13 +514,12 @@ public class MapGenerator : MonoBehaviour
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(filePath, FileMode.Open);
             NoisePresets[] loadedPresets = (NoisePresets[])bf.Deserialize(file);
-            NoiseFunction[] holder = new NoiseFunction[loadedPresets.Length];
+            NoiseFunction holder = null;
             for (int i = 0; i < loadedPresets.Length; i++)
             {
-                holder[i] = new NoiseFunction(loadedPresets[i]);
+                holder.AddChild(new NoiseFunction(loadedPresets[i]));
             }
-            noiseFunctions = new NoiseFunction[holder.Length];
-            noiseFunctions = holder;
+           EntryPoint = holder;
             file.Close();
         }
     }

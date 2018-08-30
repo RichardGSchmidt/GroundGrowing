@@ -49,32 +49,51 @@ public class NoiseFunction
 
     public void AddChild()
     {
-        noiseChild = new NoiseFunction();
+        if (noiseChild == null)
+        {
+            noiseChild = new NoiseFunction();
+        }
+        else noiseChild.AddChild();
     }
 
     public void AddChild(NoiseFunction noiseIn)
     {
-        noiseChild = noiseIn;
+        if (noiseChild == null)
+        {
+            noiseChild = noiseIn;
+        }
+
+        else noiseChild.AddChild(noiseIn);
     }
 
     public void AddChild(NoisePresets presetIn)
     {
-        noiseChild = new NoiseFunction(presetIn);
+        if (noiseChild == null)
+        {
+            noiseChild = new NoiseFunction(presetIn);
+        }
+
+        else noiseChild.AddChild(presetIn);
     }
 
-    public void AddChild(NoiseType _noiseType, bool _enabled, double _frequency,double _lacunarity, double _persistance, int _octaves, QualityMode _qMode, double _displacement,bool _distance,BlendMode _blendmode)
+    public void AddChild(NoiseType _noiseType, bool _enabled, double _frequency, double _lacunarity, double _persistance, int _octaves, QualityMode _qMode, double _displacement, bool _distance, BlendMode _blendmode)
     {
-        noiseChild = new NoiseFunction();
-        noiseChild.type = _noiseType;
-        noiseChild.enabled = _enabled;
-        noiseChild.frequency = _frequency;
-        noiseChild.lacunarity = _lacunarity;
-        noiseChild.persistence = _persistance;
-        noiseChild.octaves = _octaves;
-        noiseChild.qualityMode = _qMode;
-        noiseChild.displacement = _displacement;
-        noiseChild.distance = _distance;
-        noiseChild.Blend = _blendmode;
+
+        if (noiseChild == null)
+        {
+            noiseChild = new NoiseFunction();
+            noiseChild.type = _noiseType;
+            noiseChild.enabled = _enabled;
+            noiseChild.frequency = _frequency;
+            noiseChild.lacunarity = _lacunarity;
+            noiseChild.persistence = _persistance;
+            noiseChild.octaves = _octaves;
+            noiseChild.qualityMode = _qMode;
+            noiseChild.displacement = _displacement;
+            noiseChild.distance = _distance;
+            noiseChild.Blend = _blendmode;
+        }
+        else noiseChild.AddChild(_noiseType, _enabled, _frequency, _lacunarity, _persistance, _octaves, _qMode, _displacement, _distance, _blendmode);
     }
 
     public void RemoveChild()
@@ -85,6 +104,38 @@ public class NoiseFunction
         }
         else noiseChild = null;
 
+    }
+
+
+    public NoiseFunction RemoveSelf()
+    {
+        NoiseFunction tempNoise;
+
+        if (noiseChild != null)
+        {
+            tempNoise = new NoiseFunction(noiseChild);
+            return tempNoise;
+        }
+        else return null;
+    }
+
+    public int GetCount()
+    {
+        int temp;
+
+        if (this != null)
+        {
+           temp = 1;
+        }
+        else return 0;
+        
+        if (noiseChild !=null)
+        {
+            int children = noiseChild.GetCount();
+            return temp + children;
+        }
+        
+        return temp;
     }
 
     public void GetDefault()
@@ -174,6 +225,22 @@ public class NoiseFunction
     }
 
     #region Noise Functions Preset Handling
+
+    public NoiseFunction(NoiseFunction intakeNoise)
+    {
+        this.noiseChild = intakeNoise.noiseChild;
+        enabled = intakeNoise.enabled;
+        frequency = intakeNoise.frequency;
+        lacunarity = intakeNoise.lacunarity;
+        persistence = intakeNoise.persistence;
+        octaves = intakeNoise.octaves;
+        qualityMode = intakeNoise.qualityMode;
+        type = intakeNoise.type;
+        Blend = intakeNoise.Blend;
+        displacement = intakeNoise.displacement;
+        distance = intakeNoise.distance;
+    }
+
     public NoiseFunction(NoisePresets presets)
     {
         enabled = presets.enabled;
