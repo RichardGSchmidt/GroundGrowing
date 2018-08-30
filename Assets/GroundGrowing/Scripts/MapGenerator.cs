@@ -172,102 +172,6 @@ public class MapGenerator : MonoBehaviour
         #endregion
     }
 
-
-    public void GenerateMap()
-    {
-        ///</summary>
-        ///Things I need to add:
-        ///GenarateMap(ModuleBase);
-        //
-
-
-        #region variables and setup
-
-        //This function prevents the generation from happening if there is no noise stack to process.
-        if (EntryPoint == null)
-        {
-            EntryPoint = new NoiseFunction();
-        }
-
-        //this is the base noise module that will be manipulated 
-        baseModule = null;
-
-        //this is the noisemap that will be generated
-        noiseMap = null;
-
-
-        ///next two commands interface with multithreaded renderer
-        ///to shut it down if it's running.  The bool adds a hard 
-        ///abort check that doesn't rely on the timestamp
-  
-        HaltThreads();
-        reset = true;
-
-        //misc Setup
-        MapDisplay display = FindObjectOfType<MapDisplay>();
-
-        #endregion
-
-        #region Noise Map Initialization
-
-        //Generates a random seed and passes it to the noise processor
-        if (!useRandomSeed) { seedValue = seed.GetHashCode(); }
-        else seedValue = UnityEngine.Random.Range(0, 10000000);
-        baseModule = NoiseProcessor.InitNoise(EntryPoint, seedValue);
- 
-        
-        //This clamps the module to between 1 and 0, sort of...
-        //because of the way coherent noise works, it's not possible to completely
-        //eliminate the possibility that a value will fall outside these ranges.
-        if (clamped)
-        {
-            baseModule = new Clamp(0, 1, baseModule);
-        }
-        noiseMap = new Noise2D(mapWidth, mapHeight, baseModule);
-
-        #endregion
-
-        #region Planet Generator Setup
-        if (mapType == MapType.Planet)
-        {
-            mapHeight = mapWidth / 2;
-            renderType = RenderType.Color;
-
-            if ((oceans) && (!waterMesh.activeSelf))
-            {
-                waterMesh.SetActive(true);
-            }
-            if (waterMesh != null)
-            {
-                waterMesh.transform.localScale = 2 * (new Vector3(radius + seaLevelOffset, radius + seaLevelOffset, radius + seaLevelOffset));
-
-                if (!oceans)
-                {
-                    waterMesh.SetActive(false);
-                }
-            }
-        }
-        #endregion
-
-        #region Flat Terrain Generator
-        //non functional
-
-        else if (mapType == MapType.FlatTerrain)
-        {
-            noiseMap = new Noise2D(100, 100, baseModule);
-            noiseMap.GeneratePlanar(-1, 1, -1, 1, seamless);
-            display.TextureRender = FindObjectOfType<Renderer>();
-            mapTexture = GetMapTexture(renderType, noiseMap);
-            display.DrawMesh(FlatMeshGenerator.GenerateTerrainMesh(noiseMap, heightMultiplier, heightAdjuster), mapTexture);
-        }
-        #endregion
-
-        #region Start Multithreaded Noisemapping
-        if (multithreading){ThreadMap();}
- 
-        #endregion
-    }
-
     #endregion
 
     #region Work in Progress
@@ -475,11 +379,11 @@ public class MapGenerator : MonoBehaviour
     {
         NoiseFunction tempNoise;
         tempNoise = savedPreset;
-        NoisePresets[] presetsToSave = new NoisePresets[savedPreset.GetCount()];
-        for (int i = 0; i < savedPreset.GetCount(); i++)
+        NoisePresets[] presetsToSave = new NoisePresets[savedPreset.GetCount(savedPreset)];
+        for (int i = 0; i < savedPreset.GetCount(savedPreset); i++)
         {
             presetsToSave[i] = tempNoise.GetPresets();
-            tempNoise = tempNoise.RemoveSelf();
+            tempNoise = tempNoise.RemoveSelf(tempNoise);
         }
 
         BinaryFormatter bf = new BinaryFormatter();

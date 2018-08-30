@@ -25,6 +25,7 @@ public class NoiseFunction
     public NoiseType type = NoiseType.Perlin;
     public bool enabled = false;
     public NoiseFunction noiseChild;
+    public NoiseFunction noiseParent = null;
     public NoiseFilter[] linkedFilters = null;
 
     [Range(0f, 20f)]
@@ -51,7 +52,10 @@ public class NoiseFunction
     {
         if (noiseChild == null)
         {
-            noiseChild = new NoiseFunction();
+            noiseChild = new NoiseFunction
+            {
+                noiseParent = this
+            };
         }
         else noiseChild.AddChild();
     }
@@ -61,6 +65,7 @@ public class NoiseFunction
         if (noiseChild == null)
         {
             noiseChild = noiseIn;
+            noiseChild.noiseParent = this;
         }
 
         else noiseChild.AddChild(noiseIn);
@@ -70,7 +75,10 @@ public class NoiseFunction
     {
         if (noiseChild == null)
         {
-            noiseChild = new NoiseFunction(presetIn);
+            noiseChild = new NoiseFunction(presetIn)
+            {
+                noiseParent = this
+            };
         }
 
         else noiseChild.AddChild(presetIn);
@@ -92,6 +100,7 @@ public class NoiseFunction
             noiseChild.displacement = _displacement;
             noiseChild.distance = _distance;
             noiseChild.Blend = _blendmode;
+            noiseChild.noiseParent = this;
         }
         else noiseChild.AddChild(_noiseType, _enabled, _frequency, _lacunarity, _persistance, _octaves, _qMode, _displacement, _distance, _blendmode);
     }
@@ -100,42 +109,80 @@ public class NoiseFunction
     {
         if (noiseChild.noiseChild != null)
         {
-            noiseChild = noiseChild.noiseChild;
+            NoiseFunction temp = noiseChild.noiseChild;
+            this.noiseChild = null;
+            this.AddChild(temp);
         }
-        else noiseChild = null;
+        else this.noiseChild = null;
 
     }
 
 
-    public NoiseFunction RemoveSelf()
+    public NoiseFunction RemoveSelf(NoiseFunction toRemove)
     {
-        NoiseFunction tempNoise;
+        NoiseFunction tempNoise = toRemove;
 
-        if (noiseChild != null)
+        if (toRemove.noiseChild != null)
         {
-            tempNoise = new NoiseFunction(noiseChild);
-            return tempNoise;
+            if(toRemove.noiseParent != null)
+            {
+                tempNoise.noiseParent.noiseChild = toRemove.noiseChild;
+            }
+            tempNoise.noiseChild.noiseParent = toRemove.noiseParent;
+            
+            return GetTopMember(tempNoise);
         }
-        else return null;
+        else if (toRemove.noiseParent != null)
+        {
+            tempNoise = toRemove;
+            tempNoise.noiseParent.noiseChild = null;
+            return GetTopMember(tempNoise);
+        }
+        return null;
     }
 
-    public int GetCount()
+    public NoiseFunction GetTopMember(NoiseFunction _input)
     {
-        int temp;
+        if (_input.noiseParent != null)
+        {
+            _input = GetTopMember(_input.noiseParent);
+        }
+        return _input;
+    }
 
-        if (this != null)
+    public int GetCount (NoiseFunction _input, int previousCount)
+    {
+        int counter = previousCount;
+        if (_input == null)
         {
-           temp = 1;
+            return counter;
         }
-        else return 0;
-        
-        if (noiseChild !=null)
+        else counter++;
+
+        if (_input.noiseChild != null)
         {
-            int children = noiseChild.GetCount();
-            return temp + children;
+            counter = GetCount(_input.noiseChild, counter);
+
         }
-        
-        return temp;
+        return counter;
+
+    }
+
+    public int GetCount(NoiseFunction _input)
+    {
+        int counter = 0;
+        if (_input == null)
+        {
+            return counter;
+        }
+        else counter++;
+
+        if (_input.noiseChild !=null)
+        {
+            counter = GetCount(_input.noiseChild, counter);
+
+        }
+        return counter;
     }
 
     public void GetDefault()
@@ -228,7 +275,7 @@ public class NoiseFunction
 
     public NoiseFunction(NoiseFunction intakeNoise)
     {
-        this.noiseChild = intakeNoise.noiseChild;
+        noiseChild = intakeNoise.noiseChild;
         enabled = intakeNoise.enabled;
         frequency = intakeNoise.frequency;
         lacunarity = intakeNoise.lacunarity;

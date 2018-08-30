@@ -285,7 +285,7 @@ public class ContraOctave : EditorWindow
     {
         if (mapGenInput != null)
         {
-            mapGenInput.GenerateMap();
+            mapGenInput.GroundGrowing();
         }
         else return;
     }

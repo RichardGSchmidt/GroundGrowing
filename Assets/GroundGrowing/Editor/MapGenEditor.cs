@@ -41,7 +41,7 @@ public class MapGenEditor : Editor {
         if (DrawDefaultInspector())
         {
             if ((mapGen.autoUpdate)&&(mapGen.multithreading))
-            { mapGen.GenerateMap(); }
+            { mapGen.GroundGrowing(); }
         }
         #endregion
 
@@ -98,7 +98,7 @@ public class MapGenEditor : Editor {
             {
                 fileName = EditorUtility.OpenFilePanel("Load Regions from File ", null, "tpr");
                 _mapGen.LoadTerrain(fileName);
-                _mapGen.GenerateMap();
+                _mapGen.GroundGrowing();
             }
             if (GUILayout.Button("Sort Regions By Height"))
             {
@@ -145,7 +145,14 @@ public class MapGenEditor : Editor {
 
             if (GUILayout.Button("Add New Noise Function"))
             {
-                _mapGen.EntryPoint.AddChild();
+                if (_mapGen.EntryPoint != null)
+                {
+                    _mapGen.EntryPoint.AddChild();
+                }
+                else
+                {
+                    _mapGen.EntryPoint = new NoiseFunction();
+                }
             }
             #region Save / Load Functions
             if (GUILayout.Button("Save This Noise Preset"))
@@ -158,18 +165,18 @@ public class MapGenEditor : Editor {
                 fileName = EditorUtility.OpenFilePanel("Load a noise File ", null, "npr");
                 Debug.Log(fileName +" loaded.");
                 _mapGen.LoadPresets(fileName);
-                _mapGen.GenerateMap();
+                _mapGen.GroundGrowing();
             }
             #endregion
             if (_mapGen.EntryPoint != null)
             {
-                GetInspectorElements(_mapGen.EntryPoint, _mapGen);
+                GetInspectorElements(_mapGen.EntryPoint, ref _mapGen);
             }
 
         }
     }
 
-    public void GetInspectorElements(NoiseFunction noiseFunc, MapGenerator generator)
+    public void GetInspectorElements(NoiseFunction noiseFunc, ref MapGenerator generator)
     {
         if (noiseFunc == null)
         {
@@ -194,14 +201,7 @@ public class MapGenEditor : Editor {
             noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
-                if (noiseFunc.noiseChild == null)
-                {
-                    noiseFunc = null;
-                }
-                else
-                {
-                    noiseFunc = noiseFunc.noiseChild;
-                }
+                generator.EntryPoint = noiseFunc.RemoveSelf(noiseFunc);
             }
         }
         #endregion
@@ -222,14 +222,7 @@ public class MapGenEditor : Editor {
             noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
-                if (noiseFunc.noiseChild == null)
-                {
-                    noiseFunc = null;
-                }
-                else
-                {
-                    noiseFunc = noiseFunc.noiseChild;
-                }
+                generator.EntryPoint = generator.EntryPoint.RemoveSelf(noiseFunc);
             }
         }
 #endregion
@@ -248,14 +241,7 @@ public class MapGenEditor : Editor {
             noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
-                if (noiseFunc.noiseChild == null)
-                {
-                    noiseFunc = null;
-                }
-                else
-                {
-                    noiseFunc = noiseFunc.noiseChild;
-                }
+                generator.EntryPoint = noiseFunc.RemoveSelf(noiseFunc);
             }
 
         }
@@ -277,14 +263,7 @@ public class MapGenEditor : Editor {
             noiseFunc.Blend = (NoiseFunction.BlendMode)EditorGUILayout.EnumPopup("Blend Mode", noiseFunc.Blend);
             if (GUILayout.Button("Remove"))
             {
-                if (noiseFunc.noiseChild == null)
-                {
-                    noiseFunc = null;
-                }
-                else
-                {
-                    noiseFunc = noiseFunc.noiseChild;
-                }
+                generator.EntryPoint = noiseFunc.RemoveSelf(noiseFunc);
             }
         }
         #endregion
@@ -299,14 +278,7 @@ public class MapGenEditor : Editor {
             noiseFunc.type = (NoiseFunction.NoiseType)EditorGUILayout.EnumPopup("Type of Noise", noiseFunc.type);
             if (GUILayout.Button("Remove"))
             {
-                if (noiseFunc.noiseChild == null)
-                {
-                    noiseFunc = null;
-                }
-                else
-                {
-                    noiseFunc = noiseFunc.noiseChild;
-                }
+                generator.EntryPoint = noiseFunc.RemoveSelf(noiseFunc);
             }
             noiseFunc.enabled = false;
         }
@@ -314,15 +286,16 @@ public class MapGenEditor : Editor {
         #endregion
 
         //recursive call
-        if(noiseFunc.noiseChild!=null)
+        
+        if((noiseFunc != null)&&(noiseFunc.noiseChild!=null))
         {
-            GetInspectorElements(noiseFunc.noiseChild);
+            GetInspectorElements(noiseFunc.noiseChild, ref generator);
         }
 
         //to autoupdate if this inspector element has changed
         if (generator.autoUpdate&&EditorGUI.EndChangeCheck())
         {
-            generator.GenerateMap();
+            generator.GroundGrowing();
         }
 
         

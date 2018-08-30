@@ -12,7 +12,7 @@ public class DemoController : MonoBehaviour {
         planet = GameObject.FindGameObjectWithTag("GGPlanet");
         sunLight = GameObject.FindGameObjectWithTag("SunLight");
         mapGen = FindObjectOfType<MapGenerator>();
-        mapGen.GenerateMap();
+        mapGen.GroundGrowing();
 	}
 	
 	// Update is called once per frame
