@@ -141,8 +141,15 @@ public class MapGenEditor : Editor {
         {
             if (GUILayout.Button("Open ContraOctave")) { ContraOctave.ShowWindow(); }
 
+
+
             if (GUILayout.Button("Add New Noise Function"))
             {
+                if (_mapGen.noiseFunctions==null)
+                {
+                    _mapGen.noiseFunctions = new NoiseFunction[1];
+                    _mapGen.noiseFunctions[0].GetDefault();
+                }
                 if(!(_mapGen.noiseFunctions.Length > 0))
                 {
                     NoiseFunction[] tempNFunc = new NoiseFunction[1];
