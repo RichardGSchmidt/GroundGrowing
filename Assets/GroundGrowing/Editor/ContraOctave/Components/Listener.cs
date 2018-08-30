@@ -11,6 +11,8 @@ public class Listener
     public string title;
     public bool isDragged;
     public bool isSelected;
+    public NoiseFunction noiseToProcess;
+    public NoiseFunction lastProcessed;
 
     public ConnectionPoint listenPoint;
 
@@ -52,6 +54,7 @@ public class Listener
         
         listenPoint.Draw(this);
         GUI.Box(rect, title, style);
+        GetInspectorElements();
     }
 
     public bool ProcessEvents(Event e)
@@ -116,8 +119,22 @@ public class Listener
         }
     }
 
+    private void GetInspectorElements()
+    {
+        const float yInterval = 15f;
+        EditorGUI.LabelField(new Rect(rect.x + 50f, rect.y+yInterval, 200f, 20f),"Noise Listener");
+        if(GUI.Button(new Rect(rect.x+50f,rect.y+yInterval*2, 200f, 20f), "Generate Map"))
+        {
+            if (noiseToProcess != null)
+            {
+                GenerateMap();
+            }
+        }
+
+    }
+
     public void GenerateMap()
     {
-
+        mapLink.GroundGrowing(noiseToProcess);
     }
 }

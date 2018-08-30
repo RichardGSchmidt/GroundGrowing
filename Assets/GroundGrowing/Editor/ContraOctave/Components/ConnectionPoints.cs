@@ -33,7 +33,7 @@ public class ConnectionPoint
         this.type = type;
         this.style = style;
         this.OnClickConnectionPoint = OnClickConnectionPoint;
-        rect = new Rect(0, 0, 200, 100);
+        rect = new Rect(0, 0, 20f, 20f);
 
     }
 
@@ -52,7 +52,7 @@ public class ConnectionPoint
                 rect.x = note.rect.x + note.rect.width - 8f;
                 break;
             case ConnectionPointType.Listener:
-                rect.x = listenerTemplate.rect.x + listenerTemplate.rect.width - 8f;
+                rect.x = listenerTemplate.rect.x - rect.width + 8f;
                 break;
         }
 
@@ -73,7 +73,7 @@ public class ConnectionPoint
         {
           
             case ConnectionPointType.Listener:
-                rect.x = listenerTemplate.rect.x + listenerTemplate.rect.width - 8f;
+                rect.x = listenerTemplate.rect.x - rect.width + 8f;
                 break;
         }
 

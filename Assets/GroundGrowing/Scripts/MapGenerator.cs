@@ -172,6 +172,12 @@ public class MapGenerator : MonoBehaviour
         #endregion
     }
 
+    public void GroundGrowing(NoiseFunction _noiseIn)
+    {
+        this.EntryPoint = _noiseIn;
+        GroundGrowing();
+    }
+
     #endregion
 
     #region Work in Progress

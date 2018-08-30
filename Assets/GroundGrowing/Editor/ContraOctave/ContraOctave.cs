@@ -67,6 +67,11 @@ public class ContraOctave : EditorWindow
 
     private void OnGUI()
     {
+        if (coMapGen == null)
+        {
+            coMapGen = FindObjectOfType<MapGenerator>();
+        }
+
         DrawGrid(20, 0.2f, Color.gray);
         DrawGrid(100, 0.4f, Color.gray);
 
@@ -292,7 +297,7 @@ public class ContraOctave : EditorWindow
 
     private void OnClickAddListener(Vector2 mousePostion)
     {
-        coListener = new Listener(mousePostion, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, OnClickListenerPoint, coMapGen);
+        coListener = new Listener(mousePostion, 200, 300, nodeStyle, selectedNodeStyle, inPointStyle, OnClickListenerPoint, coMapGen);
     }
 
     private void OnClickAddNode(Vector2 mousePosition)

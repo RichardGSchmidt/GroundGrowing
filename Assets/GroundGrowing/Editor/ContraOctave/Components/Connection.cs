@@ -30,12 +30,16 @@ public class Connection
                 null,
                 2f
             );
+            inPoint.note.Noise.noiseChild = outPoint.note.Noise;
+            outPoint.note.Noise.noiseParent = inPoint.note.Noise;
 
             if (Handles.Button((inPoint.rect.center + outPoint.rect.center) * 0.5f, Quaternion.identity, 4, 8, Handles.RectangleCap))
             {
                 if (OnClickRemoveConnection != null)
                 {
                     OnClickRemoveConnection(this);
+
+                    inPoint.note.Noise.noiseChild = outPoint.note.Noise.noiseParent= null;
                 }
             }
         }
@@ -50,6 +54,8 @@ public class Connection
                 null,
                 2f
             );
+            listenerPoint.listenerTemplate.noiseToProcess = outPoint.note.Noise;
+
             if (Handles.Button((listenerPoint.rect.center*1.0f), Quaternion.identity, 4, 8, Handles.RectangleCap))
             {
                 if (OnClickRemoveConnection!=null)
