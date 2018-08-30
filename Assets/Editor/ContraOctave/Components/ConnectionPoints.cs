@@ -71,12 +71,9 @@ public class ConnectionPoint
 
         switch (type)
         {
-            case ConnectionPointType.In:
-                rect.x = listInput.rect.x - rect.width + 8f;
-                break;
-
-            case ConnectionPointType.Out:
-                rect.x = listInput.rect.x + listInput.rect.width - 8f;
+          
+            case ConnectionPointType.Listener:
+                rect.x = listenerTemplate.rect.x + listenerTemplate.rect.width - 8f;
                 break;
         }
 

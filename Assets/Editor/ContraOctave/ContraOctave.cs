@@ -226,6 +226,31 @@ public class ContraOctave : EditorWindow
 
             GUI.changed = true;
         }
+
+        if(selectedListenPoint!=null&&selectedOutPoint==null)
+        {
+            Handles.DrawBezier(
+                selectedListenPoint.rect.center,
+                e.mousePosition,
+                selectedListenPoint.rect.center - Vector2.left * 50f,
+                e.mousePosition + Vector2.left * 50f,
+                Color.white,
+                null,
+                2f
+            );
+        }
+        if(selectedOutPoint!=null&&selectedListenPoint==null)
+        {
+            Handles.DrawBezier(
+                selectedOutPoint.rect.center,
+                e.mousePosition,
+                selectedOutPoint.rect.center - Vector2.left * 50f,
+                e.mousePosition + Vector2.left * 50f,
+                Color.white,
+                null,
+                2f
+            );
+        }
     }
 
     private void ProcessContextMenu(Vector2 mousePosition)
@@ -370,5 +395,6 @@ public class ContraOctave : EditorWindow
     {
         selectedInPoint = null;
         selectedOutPoint = null;
+        selectedListenPoint = null;
     }
 }
