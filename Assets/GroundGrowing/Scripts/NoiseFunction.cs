@@ -44,19 +44,6 @@ public class NoiseFunction
 
     public NoiseFunction()
     {
-
-        type = NoiseType.None;
-        enabled = true;
-        frequency = 1;
-        lacunarity = 2.2;
-        persistence = 0.5;
-        octaves = 1;
-        qualityMode = QualityMode.Low;
-        displacement = 1;
-        distance = true;
-        Blend = BlendMode.Add;
-        linkedFilters= null;
-        noiseChild = null;
         GetDefault();
     }
 
@@ -77,16 +64,17 @@ public class NoiseFunction
 
     public void AddChild(NoiseType _noiseType, bool _enabled, double _frequency,double _lacunarity, double _persistance, int _octaves, QualityMode _qMode, double _displacement,bool _distance,BlendMode _blendmode)
     {
-        type = _noiseType;
-        enabled = _enabled;
-        frequency = _frequency;
-        lacunarity = _lacunarity;
-        persistence = _persistance;
-        octaves = _octaves;
-        qualityMode = _qMode;
-        displacement = _displacement;
-        distance = _distance;
-        Blend = _blendmode;
+        noiseChild = new NoiseFunction();
+        noiseChild.type = _noiseType;
+        noiseChild.enabled = _enabled;
+        noiseChild.frequency = _frequency;
+        noiseChild.lacunarity = _lacunarity;
+        noiseChild.persistence = _persistance;
+        noiseChild.octaves = _octaves;
+        noiseChild.qualityMode = _qMode;
+        noiseChild.displacement = _displacement;
+        noiseChild.distance = _distance;
+        noiseChild.Blend = _blendmode;
     }
 
     public void RemoveChild()
@@ -146,32 +134,35 @@ public class NoiseFunction
         else if (type == NoiseType.RidgedMultifractal) { _baseModule = new RidgedMultifractal(frequency, lacunarity, octaves, seed, qualityMode); }
         if (noiseChild != null)
         {
+            Debug.Log("making child base module");
             _childBase = noiseChild.MakeNoise();
                                     
 
             if (noiseChild.Blend == NoiseFunction.BlendMode.Power)
             {
-                _baseModule = new Power(_baseModule, noiseChild.MakeNoise());
+                _baseModule = new Power(_baseModule, _childBase);
             }
             else if (noiseChild.Blend == NoiseFunction.BlendMode.Subtract)
             {
-                _baseModule = new Subtract(_baseModule, noiseChild.MakeNoise());
+                Debug.Log("subtracting");
+                _baseModule = new Subtract(_baseModule, _childBase);
             }
             else if (noiseChild.Blend == NoiseFunction.BlendMode.Max)
             {
-                _baseModule = new Max(_baseModule, noiseChild.MakeNoise());
+                _baseModule = new Max(_baseModule, _childBase);
             }
             else if (noiseChild.Blend == NoiseFunction.BlendMode.Min)
             {
-                _baseModule = new Min(_baseModule, noiseChild.MakeNoise());
+                _baseModule = new Min(_baseModule, _childBase);
             }
             else if (noiseChild.Blend == NoiseFunction.BlendMode.Multiply)
             {
-                _baseModule = new Multiply(_baseModule, noiseChild.MakeNoise());
+                _baseModule = new Multiply(_baseModule, _childBase);
             }
             else
             {
-                _baseModule = new Add(_baseModule, noiseChild.MakeNoise());
+                Debug.Log("adding");
+                _baseModule = new Add(_baseModule, _childBase);
             }
             
         }

@@ -126,7 +126,15 @@ public class MapGenerator : MonoBehaviour
         //Generates a random seed and passes it to the noise processor
         if (!useRandomSeed) { seedValue = seed.GetHashCode(); }
         else seedValue = UnityEngine.Random.Range(0, 10000000);
-        EntryPoint = new NoiseFunction();
+
+
+        if (EntryPoint == null)
+        {
+            EntryPoint = new NoiseFunction();
+        }
+
+        EntryPoint.Blend = NoiseFunction.BlendMode.Add;
+        
         baseModule = EntryPoint.MakeNoise();
 
 
