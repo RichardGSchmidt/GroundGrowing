@@ -13,6 +13,7 @@ public class ContraOctave : EditorWindow
 {
     private List<Note> notes;
     private List<Connection> connections;
+    private List<FilterNode> filters;
     private Listener coListener;
 
     private MapGenerator coMapGen;
@@ -77,12 +78,14 @@ public class ContraOctave : EditorWindow
 
         DrawListener();
         DrawNodes();
+        DrawFilters();
         DrawConnections();
 
         DrawConnectionLine(Event.current);
 
         ProcessNodeEvents(Event.current);
         ProcessListenerEvents(Event.current);
+        ProcessFilterEvents(Event.current);
         ProcessEvents(Event.current);
 
         if (GUI.changed) Repaint();
@@ -120,6 +123,17 @@ public class ContraOctave : EditorWindow
             for (int i = 0; i < notes.Count; i++)
             {
                 notes[i].Draw();
+            }
+        }
+    }
+
+    private void DrawFilters()
+    {
+        if (filters != null)
+        {
+            for (int i = 0; i < filters.Count; i++)
+            {
+                filters[i].Draw();
             }
         }
     }
@@ -177,6 +191,22 @@ public class ContraOctave : EditorWindow
             for (int i = notes.Count - 1; i >= 0; i--)
             {
                 bool guiChanged = notes[i].ProcessEvents(e);
+
+                if (guiChanged)
+                {
+                    GUI.changed = true;
+                }
+            }
+        }
+    }
+
+    private void ProcessFilterEvents(Event e)
+    {
+        if (filters!=null)
+        {
+            for (int i = filters.Count - 1; i >=0; i--)
+            {
+                bool guiChanged = filters[i].ProcessEvents(e);
 
                 if (guiChanged)
                 {
@@ -261,10 +291,27 @@ public class ContraOctave : EditorWindow
     private void ProcessContextMenu(Vector2 mousePosition)
     {
         GenericMenu genericMenu = new GenericMenu();
-        genericMenu.AddItem(new GUIContent("Add note"), false, () => OnClickAddNode(mousePosition));
-        genericMenu.AddItem(new GUIContent("Add listener"), false, () => OnClickAddListener(mousePosition));
+        genericMenu.AddItem(new GUIContent("Add Noise"), false, () => OnClickAddNode(mousePosition));
+        genericMenu.AddItem(new GUIContent("Add Listener"), false, () => OnClickAddListener(mousePosition));
+        AddFilterMenuItem(genericMenu, "Filters/Clamp", new ClampFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Scale", new ScaleFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Translate", new TranslateFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Rotate", new RotateFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Scale Bias", new ScaleBiasFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Invert", new InvertFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/ABS", new ABSFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Terrace", new TerraceFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Turbulence", new TurbulenceFilter(), mousePosition);
+        AddFilterMenuItem(genericMenu, "Filters/Exponent", new ExponentFilter(), mousePosition);
         genericMenu.ShowAsContext();
     }
+
+    private void AddFilterMenuItem(GenericMenu menu, string menuPath, NoiseFilter _filter, Vector2 mousePosition)
+    {
+        menu.AddItem(new GUIContent(menuPath),false,()=> OnClickAddFilter(mousePosition,_filter));
+    }
+
+
 
     private void OnDrag(Vector2 delta)
     {
@@ -308,6 +355,15 @@ public class ContraOctave : EditorWindow
         }
 
         notes.Add(new Note(mousePosition, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint, OnClickRemoveNode));
+    }
+
+    private void OnClickAddFilter(Vector2 mousePosition, NoiseFilter filterIn)
+    {
+        if (filters == null)
+        {
+            filters = new List<FilterNode>();
+        }
+        filters.Add( new FilterNode(mousePosition, 200, 50, nodeStyle, selectedNodeStyle, inPointStyle, outPointStyle, OnClickInPoint, OnClickOutPoint,OnClickRemoveNode ,OnClickRemoveFilter, filterIn));
     }
 
     private void OnClickInPoint(ConnectionPoint inPoint)
@@ -356,6 +412,31 @@ public class ContraOctave : EditorWindow
         }
     }
 
+    private void OnClickRemoveFilter(FilterNode filter)
+    {
+        if (connections != null)
+        {
+            List<Connection> connectionsToRemove = new List<Connection>();
+
+            for (int i = 0; i < connections.Count; i++)
+            {
+                if (connections[i].inPoint == filter.inPoint || connections[i].outPoint == filter.outPoint)
+                {
+                    connectionsToRemove.Add(connections[i]);
+                }
+            }
+
+            for (int i = 0; i < connectionsToRemove.Count; i++)
+            {
+                connections.Remove(connectionsToRemove[i]);
+            }
+
+            connectionsToRemove = null;
+        }
+
+        filters.Remove(filter);
+    }
+
     private void OnClickRemoveNode(Note note)
     {
         if (connections != null)
@@ -377,8 +458,11 @@ public class ContraOctave : EditorWindow
 
             connectionsToRemove = null;
         }
-
-        notes.Remove(note);
+        if (note != null&&notes!=null)
+        {
+            notes.Remove(note);
+        }
+        
     }
 
     private void OnClickRemoveConnection(Connection connection)

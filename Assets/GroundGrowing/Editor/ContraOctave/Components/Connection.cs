@@ -32,13 +32,14 @@ public class Connection
             );
             inPoint.note.Noise.noiseChild = outPoint.note.Noise;
             outPoint.note.Noise.noiseParent = inPoint.note.Noise;
+            inPoint.restrictIntake = true;
 
             if (Handles.Button((inPoint.rect.center + outPoint.rect.center) * 0.5f, Quaternion.identity, 4, 8, Handles.RectangleCap))
             {
                 if (OnClickRemoveConnection != null)
                 {
                     OnClickRemoveConnection(this);
-
+                    inPoint.restrictIntake = false;
                     inPoint.note.Noise.noiseChild = outPoint.note.Noise.noiseParent= null;
                 }
             }
@@ -55,12 +56,15 @@ public class Connection
                 2f
             );
             listenerPoint.listenerTemplate.noiseToProcess = outPoint.note.Noise;
+            listenerPoint.restrictIntake = true;
 
             if (Handles.Button((listenerPoint.rect.center*1.0f), Quaternion.identity, 4, 8, Handles.RectangleCap))
             {
                 if (OnClickRemoveConnection!=null)
                 {
                     OnClickRemoveConnection(this);
+                    listenerPoint.restrictIntake = false;
+                    listenerPoint.listenerTemplate.noiseToProcess = null;
                 }
             }
         }

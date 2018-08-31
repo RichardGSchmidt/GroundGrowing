@@ -9,7 +9,6 @@ public class Note
     /// 
     /// </summary>
     public NoiseFunction Noise { get; set; }
-    public NoiseFilter[] NoiseFilters { get; set; }
     public Rect rect;
     public string title;
     public bool isDragged;
@@ -40,7 +39,6 @@ public class Note
         Action<Note> OnClickRemoveNote)
     {
         Noise = new NoiseFunction();
-        NoiseFilters = null;
 
         rect = new Rect(position.x, position.y, width, height);
         style = noteStyle;
@@ -56,7 +54,7 @@ public class Note
         rect.position += delta;
     }
 
-    public void Draw()
+    public virtual void Draw()
     {
         inPoint.Draw();
         outPoint.Draw();
@@ -112,14 +110,14 @@ public class Note
         return false;
     }
 
-    private void ProcessContextMenu()
+    public virtual void ProcessContextMenu()
     {
         GenericMenu genericMenu = new GenericMenu();
         genericMenu.AddItem(new GUIContent("Remove Noise"), false, OnClickRemoveNote);
         genericMenu.ShowAsContext();
     }
 
-    private void OnClickRemoveNote()
+    public virtual void OnClickRemoveNote()
     {
         if (OnRemoveNote!=null)
         {
@@ -148,7 +146,7 @@ public class Note
             _Noise.type = (NoiseFunction.NoiseType)EditorGUI.EnumPopup(typeRect, _Noise.type);
             _Noise.enabled = EditorGUI.ToggleLeft(enabledRect, "Enabled", _Noise.enabled);
             _Noise.frequency = (double)EditorGUI.Slider(freqRect,"Frequency", (float)_Noise.frequency, 0f, 20f);
-            _Noise.lacunarity = (double)EditorGUI.Slider(lacRect,"Lacunarity", (float)_Noise.lacunarity, 0f, 1.5000000f);
+            _Noise.lacunarity = (double)EditorGUI.Slider(lacRect,"Lacunarity", (float)_Noise.lacunarity, 0f, 4.5000000f);
             _Noise.persistence = (double)EditorGUI.Slider(perRect,"Persistence", (float)_Noise.persistence, 0f, 1f);
             _Noise.octaves = EditorGUI.IntSlider(octRect, "Octaves", _Noise.octaves, 0, 18);
             _Noise.qualityMode = (LibNoise.QualityMode)EditorGUI.EnumPopup(quaRect, "Quality Mode", _Noise.qualityMode);

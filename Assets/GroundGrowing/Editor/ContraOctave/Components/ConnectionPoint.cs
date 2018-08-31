@@ -8,6 +8,10 @@ public class ConnectionPoint
 {
     public Rect rect;
 
+    public bool restrictIntake;
+
+    public bool restrictOutflow;
+
     public ConnectionPointType type;
 
     public Note note;
@@ -25,6 +29,8 @@ public class ConnectionPoint
         this.style = style;
         this.OnClickConnectionPoint = OnClickConnectionPoint;
         rect = new Rect(0, 0, 10f, 20f);
+        this.restrictIntake = false;
+        this.restrictOutflow = false;
     }
 
     public ConnectionPoint(Listener listener, ConnectionPointType type, GUIStyle style, Action<ConnectionPoint>OnClickConnectionPoint)
@@ -34,7 +40,7 @@ public class ConnectionPoint
         this.style = style;
         this.OnClickConnectionPoint = OnClickConnectionPoint;
         rect = new Rect(0, 0, 20f, 20f);
-
+        this.restrictIntake = false;
     }
 
 

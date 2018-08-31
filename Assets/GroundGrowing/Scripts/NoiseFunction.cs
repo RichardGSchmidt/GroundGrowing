@@ -7,6 +7,8 @@ using LibNoise.Operator;
 
 using UnityEngine;
 
+public enum FilterType{Clamp,Invert,Turbulence,Translate,Terrace,ScaleBias,Scale,Rotate,ABS,Exponent}
+
 public class NoiseFunction
 {
     public enum BlendMode { Add, Subtract, Max, Min, Multiply, Power };
@@ -456,16 +458,61 @@ public abstract class NoiseJoiner
 public abstract class NoiseFilter
 {
     //this abstract will be attached to the main Note function.
-    NoiseFunction Attached { get; set; }
-    bool FilterEnabled { get; set; }
+    public FilterType Type { get; set; }
+    public NoiseFunction Attached { get; set; }
+    public bool FilterEnabled { get; set; }
     public int FilterIndex { get; set; }
+    public Rect BaseLocation { get; set; }
+    public Rect Box1 { get; set; }
+    public Rect Box2 { get; set; }
+    public Rect Box3 { get; set; }
+    public Rect Box4 { get; set; }
+    public Rect Box5 { get; set; }
+    public string Name { get; set; }
+    public const float yInterval = 20f;
+
     public NoiseFilter()
     {
         FilterEnabled = false;
         Attached = null;
     }
 
+    public NoiseFilter(ref Rect _boxIn)
+    {
+        BaseLocation = _boxIn;
+        GetLocations();
+        FilterEnabled = false;
+        Attached = null;
+    }
+
     abstract public ModuleBase RunFilter(ModuleBase _mBase);
+
+    abstract public void GetInspectorElements(ref Rect _box);
+
+    public void GetLocations()
+    {
+        Box1 = new Rect(BaseLocation.x + 10f, BaseLocation.y + yInterval, 300f, 20f);
+        Box2 = new Rect(BaseLocation.x + 10f, BaseLocation.y + 2*yInterval, 300f, 20f);
+        Box3 = new Rect(BaseLocation.x + 10f, BaseLocation.y + 3*yInterval, 300f, 20f);
+        Box4 = new Rect(BaseLocation.x + 10f, BaseLocation.y + 4*yInterval, 300f, 20f);
+        Box5 = new Rect(BaseLocation.x + 10f, BaseLocation.y + 5*yInterval, 300f, 20f);
+
+    }
+
+    public void GetLocations(Rect locIn)
+    {
+        Box1 = new Rect(locIn.x + 10f, locIn.y + yInterval, 300f, 20f);
+        Box2 = new Rect(locIn.x + 10f, locIn.y + 2 * yInterval, 300f, 20f);
+        Box3 = new Rect(locIn.x + 10f, locIn.y + 3 * yInterval, 300f, 20f);
+        Box4 = new Rect(locIn.x + 10f, locIn.y + 4 * yInterval, 300f, 20f);
+        Box5 = new Rect(locIn.x + 10f, locIn.y + 5 * yInterval, 300f, 20f);
+
+    }
+
+    public Rect SetWindowSize(Rect _rectIn)
+    {
+        return (new Rect(_rectIn.x, _rectIn.y, 400f,200f));    
+    }
 
     public void AttachToBase(NoiseFunction _noiseFunc)
     {
@@ -479,9 +526,34 @@ public abstract class NoiseFilter
 public class TurbulenceFilter : NoiseFilter
 {
     double Power { get; set; }
+
+    public TurbulenceFilter():base()
+    {
+        Name = "Turbulence";
+        Type = FilterType.Turbulence;
+        FilterEnabled = true;
+    }
+
+    public TurbulenceFilter(ref Rect _boxIn):base(ref _boxIn)
+    {
+        Name = "Turbulence";
+        Type = FilterType.Turbulence;
+        FilterEnabled = true;
+    }
+
     public override ModuleBase RunFilter(ModuleBase _mBase)
     {
         return new Turbulence(Power, _mBase);
+    }
+
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        _box = SetWindowSize(_box);
+        GetLocations(_box);
+        this.Name = "Turbulence";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this.Power = (double)UnityEditor.EditorGUI.Slider(Box3,"Power",(float)this.Power, -2, 10);
     }
 }
 
@@ -494,6 +566,18 @@ public class TranslateFilter : NoiseFilter
     {
         return new Translate(X, Y, Z, _mBase);
     }
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Translate";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this.X = (double)UnityEditor.EditorGUI.Slider(Box3, "X", (float)this.X, -200, 200);
+        this.Y = (double)UnityEditor.EditorGUI.Slider(Box4, "Y", (float)this.Y, -200, 200);
+        this.Z = (double)UnityEditor.EditorGUI.Slider(Box5, "Z", (float)this.Z, -200, 200);
+        //add linkage checkbox
+    }
 }
 
 public class TerraceFilter : NoiseFilter
@@ -502,6 +586,15 @@ public class TerraceFilter : NoiseFilter
     public override ModuleBase RunFilter(ModuleBase _mBase)
     {
        return new Terrace(Inverted, _mBase);
+    }
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Terrace";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this.Inverted = UnityEditor.EditorGUI.Toggle(Box3, "Inverted", this.Inverted);
     }
 }
 
@@ -512,6 +605,16 @@ public class ScaleBiasFilter: NoiseFilter
     public override ModuleBase RunFilter(ModuleBase _mBase)
     {
         return new ScaleBias(_Scale, _Bias, _mBase);
+    }
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Scale Bias";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this._Scale = (double)UnityEditor.EditorGUI.Slider(Box3, "Scale", (float)this._Scale, -200, 200);
+        this._Bias = (double)UnityEditor.EditorGUI.Slider(Box4, "Bias", (float)this._Bias, -200, 200);
     }
 }
 
@@ -524,6 +627,17 @@ public class ScaleFilter : NoiseFilter
     {
         return new Scale(X, Y, Z, _mBase);
     }
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Scale";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this.X = (double)UnityEditor.EditorGUI.Slider(Box3, "X", (float)this.X, -200, 200);
+        this.Y = (double)UnityEditor.EditorGUI.Slider(Box4, "Y", (float)this.Y, -200, 200);
+        this.Z = (double)UnityEditor.EditorGUI.Slider(Box5, "Z", (float)this.Z, -200, 200);
+    }
 }
 
 public class RotateFilter : NoiseFilter
@@ -535,6 +649,17 @@ public class RotateFilter : NoiseFilter
     {
         return new Rotate(X,Y,Z,_mBase);
     }
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Rotate";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this.X = (double)UnityEditor.EditorGUI.Slider(Box3, "X", (float)this.X, -200, 200);
+        this.Y = (double)UnityEditor.EditorGUI.Slider(Box4, "Y", (float)this.Y, -200, 200);
+        this.Z = (double)UnityEditor.EditorGUI.Slider(Box5, "Z", (float)this.Z, -200, 200);
+    }
 }
 
 public class ABSFilter : NoiseFilter
@@ -542,8 +667,16 @@ public class ABSFilter : NoiseFilter
     public override ModuleBase RunFilter(ModuleBase _mBase)
     {
         return new Abs(_mBase);
-    }   
+    }
 
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Absolute Value";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+    }
 }
 
 public class ClampFilter : NoiseFilter
@@ -556,6 +689,16 @@ public class ClampFilter : NoiseFilter
         return new Clamp(MinValue,MaxValue,_mBase);
     }
 
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Clamp";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this.MinValue = (double)UnityEditor.EditorGUI.Slider(Box3, "Min", (float)this.MinValue, -3, 3);
+        this.MaxValue = (double)UnityEditor.EditorGUI.Slider(Box4, "Max", (float)this.MaxValue, -3, 3);
+    }
 }
 
 public class ExponentFilter : NoiseFilter
@@ -566,6 +709,15 @@ public class ExponentFilter : NoiseFilter
         return new Exponent(CoEfficient, _mBase);
     }
 
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Exponent";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+        this.CoEfficient = (double)UnityEditor.EditorGUI.Slider(Box3, "Power", (float)this.CoEfficient, -2, 10);
+    }
 }
 
 public class InvertFilter : NoiseFilter
@@ -575,6 +727,14 @@ public class InvertFilter : NoiseFilter
         return new Invert( _mBase);
     }
 
+    public override void GetInspectorElements(ref Rect _box)
+    {
+        GetLocations(_box);
+        _box = SetWindowSize(_box);
+        this.Name = "Invert";
+        UnityEditor.EditorGUI.LabelField(Box1, Name);
+        this.FilterEnabled = UnityEditor.EditorGUI.ToggleLeft(Box2, "Enabled", this.FilterEnabled);
+    }
 }
 
 

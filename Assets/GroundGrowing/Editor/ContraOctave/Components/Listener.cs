@@ -123,7 +123,7 @@ public class Listener
     {
         const float yInterval = 15f;
         EditorGUI.LabelField(new Rect(rect.x + 50f, rect.y+yInterval, 200f, 20f),"Noise Listener");
-        if(GUI.Button(new Rect(rect.x+50f,rect.y+yInterval*2, 200f, 20f), "Generate Map"))
+        if(GUI.Button(new Rect(rect.x+50f,rect.y+yInterval*2, 100f, 20f), "Generate Map"))
         {
             if (noiseToProcess != null)
             {
