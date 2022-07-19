@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using LibNoise.Generator;
 using LibNoise.Operator;
 using LibNoise;
 using System;
@@ -71,7 +72,7 @@ public class MapGenerator : MonoBehaviour
 
     //hidden in inspector because of custom inspector implementation
     [HideInInspector]
-    public NoiseFunction [] noiseFunctions = null;
+    public NoiseFunctions[] noiseFunctions;
 
     private ModuleBase baseModule = null;
     #endregion
@@ -89,14 +90,14 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     public void GenerateMap()
     {
+
         #region variables and setup
 
         //This function prevents the generation from happening if there is no noise stack to process.
-        if ((noiseFunctions == null)||(noiseFunctions.Length < 1))
+        if (noiseFunctions.Length < 1)
         {
-            noiseFunctions = new NoiseFunction[1];
-            noiseFunctions[0] = new NoiseFunction();
-            noiseFunctions[0].GetDefault();
+            Debug.Log("Blank Noise functions, Please load noise functions before generating.");
+            return;
         }
 
         //this is the base noise module that will be manipulated 
@@ -123,7 +124,7 @@ public class MapGenerator : MonoBehaviour
         //Generates a random seed and passes it to the noise processor
         if (!useRandomSeed) { seedValue = seed.GetHashCode(); }
         else seedValue = UnityEngine.Random.Range(0, 10000000);
-        baseModule = NoiseProcessor.InitNoise(noiseFunctions, seedValue);
+        baseModule = InitNoise(noiseFunctions, seedValue);
  
         
         //This clamps the module to between 1 and 0, sort of...
@@ -178,6 +179,37 @@ public class MapGenerator : MonoBehaviour
         #endregion
     }
 
+    #endregion
+
+    #region Noise Processor
+    public ModuleBase InitNoise(NoiseFunctions[] noiseStack, int seed)
+    {
+        ModuleBase _baseModule = null;
+        for (int i = 0; i < noiseStack.Length; i++)
+        {
+            noiseStack[i].seed = seed + i;
+
+            //for first valid noise pattern simply pass the noise function
+            if ((noiseStack[i].enabled) && (_baseModule == null))
+            {
+                _baseModule = noiseStack[i].MakeNoise();
+            }
+
+            //all others valid add to / subtract from the previous iteration of the baseModule
+            else if (noiseStack[i].enabled)
+            {
+                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Add)
+                {
+                    _baseModule = new Add(_baseModule, noiseStack[i].MakeNoise());
+                }
+                if (noiseFunctions[i].blendMode == NoiseFunctions.BlendMode.Subtract)
+                {
+                    _baseModule = new Subtract(_baseModule, noiseStack[i].MakeNoise());
+                }
+            }
+        }
+        return _baseModule;
+    }
     #endregion
 
     #region Work in Progress
@@ -381,7 +413,7 @@ public class MapGenerator : MonoBehaviour
 
     #region File IO
 
-    public void SavePresets(NoiseFunction[] savedPresets, string destpath)//saves the map to a given string location.
+    public void SavePresets(NoiseFunctions[] savedPresets, string destpath)//saves the map to a given string location.
     {
         NoisePresets[] presetsToSave = new NoisePresets[savedPresets.Length];
         for (int i = 0; i < savedPresets.Length; i++)
@@ -421,12 +453,12 @@ public class MapGenerator : MonoBehaviour
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(filePath, FileMode.Open);
             NoisePresets[] loadedPresets = (NoisePresets[])bf.Deserialize(file);
-            NoiseFunction[] holder = new NoiseFunction[loadedPresets.Length];
+            NoiseFunctions[] holder = new NoiseFunctions[loadedPresets.Length];
             for (int i = 0; i < loadedPresets.Length; i++)
             {
-                holder[i] = new NoiseFunction(loadedPresets[i]);
+                holder[i] = new NoiseFunctions(loadedPresets[i]);
             }
-            noiseFunctions = new NoiseFunction[holder.Length];
+            noiseFunctions = new NoiseFunctions[holder.Length];
             noiseFunctions = holder;
             file.Close();
         }
@@ -452,12 +484,200 @@ public class MapGenerator : MonoBehaviour
     }
     #endregion
 
-    
-
 }
 
     #region Serialized Data Sets
 
+#region NoiseFunctions Serializable Container
+[System.Serializable]
+public class NoiseFunctions     
+{
+    public enum BlendMode {Add, Subtract };
+    public enum NoiseType { Perlin, Billow, RidgedMultifractal, Voronoi, None };
+    //[Range(0,1)]
+    //public float noiseScale = 0.5f;
+    public NoiseType type = NoiseType.Perlin;
+    public bool enabled = false;
+ 
+    [Range(0f,20f)]
+    public double frequency;
+    [Range(2.0000000f, 2.5000000f)]
+    public double lacunarity;
+    [Range(0f, 1f)]
+    public double persistence;
+    [Range(1,18)]
+    public int octaves;
+    public int seed;
+    public BlendMode blendMode;
+    public QualityMode qualityMode;
+
+    public double displacement;
+    public bool distance;
+
+    public NoiseFunctions()
+    {
+        enabled = true;
+        frequency = 1;
+        lacunarity = 2.2;
+        persistence = 0.5;
+        octaves = 1;
+        qualityMode = QualityMode.Low;
+        displacement = 1;
+        distance = true;
+        blendMode = BlendMode.Add;
+
+    }
+    public ModuleBase MakeNoise()
+    {
+        //this function builds the base module out of the noise function that calls it.
+        ModuleBase _baseModule = null;
+        if (type == NoiseType.Billow) { _baseModule = new Billow(frequency, lacunarity, persistence, octaves, seed, qualityMode); }
+        else if (type == NoiseType.Perlin) { _baseModule = new Perlin(frequency, lacunarity, persistence, octaves, seed, qualityMode); }
+        else if (type == NoiseType.Voronoi) { _baseModule = new Voronoi(frequency, displacement, seed, distance); }
+        else if (type == NoiseType.RidgedMultifractal) { _baseModule = new RidgedMultifractal(frequency, lacunarity, octaves, seed, qualityMode); }
+        return _baseModule;
+    }
+
+    #region Noise Functions Preset Handling
+    public NoiseFunctions(NoisePresets presets)
+    {
+        enabled = presets.enabled;
+        frequency = presets.frequency;
+        lacunarity = presets.lacunarity;
+        persistence = presets.persistence;
+        octaves = presets.octaves;
+        if (presets.qualityMode == NoisePresets.QualityMode.High)
+        {
+            qualityMode = QualityMode.High;
+        }
+        else if (presets.qualityMode == NoisePresets.QualityMode.Medium)
+        {
+            qualityMode = QualityMode.Medium;
+        }
+        else 
+        {
+            qualityMode = QualityMode.Low;
+        }
+
+        if (presets.noiseType == NoisePresets.NoiseType.Billow)
+        {
+            type = NoiseType.Billow;
+        }
+        else if (presets.noiseType == NoisePresets.NoiseType.Perlin)
+        {
+            type = NoiseType.Perlin;
+        }
+        else if (presets.noiseType == NoisePresets.NoiseType.RidgedMultifractal)
+        {
+            type = NoiseType.RidgedMultifractal;
+        }
+        else if (presets.noiseType == NoisePresets.NoiseType.Voronoi)
+        {
+            type = NoiseType.Voronoi;
+        }
+        else 
+        {
+            type = NoiseType.None;
+        }
+
+        if (presets.blendMode == NoisePresets.BlendMode.Subtract)
+        {
+            blendMode = BlendMode.Subtract;
+        }
+
+        else
+        {
+            blendMode = BlendMode.Add;
+        }
+
+
+
+        displacement = presets.displacement;
+        distance = presets.distance;
+    }
+    public NoisePresets GetPresets()
+    {
+        NoisePresets preset = new NoisePresets();
+        preset.enabled = enabled;
+        preset.frequency = frequency;
+        preset.lacunarity = lacunarity;
+        preset.persistence = persistence;
+        preset.octaves = octaves;
+        preset.displacement = displacement;
+        preset.distance = distance;
+
+
+        if (qualityMode == QualityMode.High)
+        {
+            preset.qualityMode = NoisePresets.QualityMode.High;
+        }
+        else if (qualityMode == QualityMode.Medium)
+        {
+            preset.qualityMode = NoisePresets.QualityMode.Medium;
+        }
+        else 
+        {
+            preset.qualityMode = NoisePresets.QualityMode.Low;
+        }
+
+        if (type == NoiseType.Perlin)
+        {
+            preset.noiseType = NoisePresets.NoiseType.Perlin;
+        }
+        else if (type == NoiseType.Billow)
+        {
+            preset.noiseType = NoisePresets.NoiseType.Billow;
+        }
+        else if (type == NoiseType.RidgedMultifractal)
+        {
+            preset.noiseType = NoisePresets.NoiseType.RidgedMultifractal;
+        }
+        else if (type == NoiseType.Voronoi)
+        {
+            preset.noiseType = NoisePresets.NoiseType.Voronoi;
+        }
+        else
+        {
+            preset.noiseType = NoisePresets.NoiseType.None;
+        }
+
+        if (blendMode == BlendMode.Subtract)
+        {
+            preset.blendMode = NoisePresets.BlendMode.Subtract;
+        }
+        else
+        {
+            preset.blendMode = NoisePresets.BlendMode.Add;
+        }
+
+        return preset;
+    }
+    #endregion
+    
+}
+#endregion
+
+#region Noise Presets Serializable Container
+//used to save an .npr file
+[System.Serializable]
+public struct NoisePresets
+{
+    public enum NoiseType { Perlin, Billow, RidgedMultifractal, Voronoi, None };
+    public enum QualityMode { Low, Medium, High };
+    public enum BlendMode { Add, Subtract };
+    public NoiseType noiseType;
+    public bool enabled;
+    public double frequency;
+    public double lacunarity;
+    public double persistence;
+    public int octaves;
+    public QualityMode qualityMode;
+    public BlendMode blendMode;
+    public double displacement;
+    public bool distance;
+
+}
+#endregion
 
 
 #region Terrain Groups

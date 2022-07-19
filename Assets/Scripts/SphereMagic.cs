@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using LibNoise.Generator;
+using LibNoise.Operator;
 using LibNoise;
 
 /// <summary>
