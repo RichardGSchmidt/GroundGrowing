@@ -1,7 +1,7 @@
 # GroundGrowing
 **An Open Source Unity3d Planetary Terrain Generator and Editor Extension**
 
-This project is built as an extension to the editor, it is meant as a build tool for designers looking to generate content rapidly on the fly.  The generation functions can also be exported and called inside other applications.  It is multithreaded in both the inspector and during runtime so it can update and generate without slowing down either the player's or the designer's user experience.
+This project is built as an extension to the editor, it is meant as a build tool for designers looking to generate content rapidly on the fly.  The generation functions can also be exported and called inside other applications.  It is multithreaded in both the inspector and during runtime so it can update and generate without slowing down either the player's or the designer's user experience.  It updates in incrementally increasing resolutions start with low res in order to provide modes rapidly to the user while higher resolution models are processed in the background.
 
 **Video Demonstration:**
 
