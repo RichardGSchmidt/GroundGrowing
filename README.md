@@ -1,11 +1,13 @@
 # GroundGrowing
-**An Open Source Unity3d Planetary Terrain Generator**
+**An Open Source Unity3d Planetary Terrain Generator and Editor Extension**
 
-[![Youtube video of Planet Generator](https://img.youtube.com/vi/trL7Wph3noE/hqdefault.jpg)](http://www.youtube.com/watch?v=trL7Wph3noE)
+This project is built as an extension to the editor, it is meant as a build tool for designers looking to generate content rapidly on the fly.  The generation functions can also be exported and called inside other applications.  It is multithreaded in both the inspector and during runtime so it can update and generate without slowing down either the player's or the designer's user experience.
 
-**About**
+**Video Demonstration:**
 
-This project is built as an extension to the editor, it is ment as a build tool for designers looking to generate content rapidly on the fly.  The generation functions can also be exported and called inside other applications.  It is multithreaded in both the inspector and during runtime so it can update and generate without slowing down either the player's or the designer's user experience.
+[![An Example Planet](https://i.imgur.com/8zgkg4y.png?2)](http://www.youtube.com/watch?v=trL7Wph3noE)]
+
+
 
 
 **To Start**
