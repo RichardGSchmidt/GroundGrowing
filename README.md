@@ -19,7 +19,7 @@ This project is built as an extension to the editor, it is meant as a build tool
 
 **Noise Stack**
 * The noise stack is made of noise functions that can be either added or subtracted from each other in order to blend them.
-* Supported noise types are: Perlin, Billow, Ridged Multifractal, and Voronoi.  I recommend experementing with all of them independently before you start blending, so you have some idea of what they look like.
+* Supported noise types are: Perlin, Billow, Ridged Multifractal, and Voronoi.  I recommend experimenting with all of them independently before you start blending, so you have some idea of what they look like.
 * You can load or save presets to file for later use.
 
 **Regions**
